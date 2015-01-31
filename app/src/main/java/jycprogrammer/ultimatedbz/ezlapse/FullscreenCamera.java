@@ -2,6 +2,7 @@ package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,12 +46,13 @@ public class FullscreenCamera extends ActionBarActivity {
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
-            String directory = "";
+            String filePath = "";
             boolean success = true;
             try{
-                directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
+                filePath = directory + filename;
                 os.write(data);
 
 
@@ -78,11 +80,17 @@ public class FullscreenCamera extends ActionBarActivity {
 
             //for now, we are just directly setting title
             if(success) {
+                Log.v(TAG, "success");
                 /* picture is saved, do something with it, ask for title etc*/
-                Lapse newLapse = new Lapse("temporary title", new Date(), directory);
+                Lapse newLapse = new Lapse("temporary title", new Date(), filePath);
                 LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
-                getIntent().putExtra(EXTRA_PASS, true);
-                setResult(Activity.RESULT_OK, getIntent());
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(EXTRA_PASS, true);
+
+                setResult(Activity.RESULT_OK, returnIntent);
+            }else{
+                Intent returnIntent = new Intent();
+                setResult(RESULT_CANCELED, returnIntent);
             }
             finish();
         }

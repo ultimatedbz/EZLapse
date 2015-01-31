@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 
 public class LapseGridActivity extends ActionBarActivity {
 
+    private static String TAG = "lapse_grid_activity";
     private static final int REQUEST_PHOTO = 0;
 
     private Button create_lapse_button;
@@ -87,16 +89,17 @@ public class LapseGridActivity extends ActionBarActivity {
 
 
             /* Displays latest picture*/
+            Log.v(TAG,getItem(position).getLatest());//TODO
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
-
+                Log.v(TAG, "IMAGE FILE EXISTS!");
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-
+                Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
-                picture.setImageBitmap(myBitmap);
-
+                picture.setImageBitmap(myBitmap); //might be too big
+                Log.v(TAG, "Picture set");
                 TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
             }
@@ -116,13 +119,18 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
     private void updateView(){
+        Log.v(TAG, "view updated, size of gallery is: " + mLapseGallery.size());
         if(mLapseGallery.size() > 0) {
             setContentView(R.layout.activity_yes_lapse);
             the_grid = (GridView) findViewById(R.id.main_grid);
-            if(the_grid.getAdapter() != null)
+            if(the_grid.getAdapter() != null) {
+                Log.v(TAG,"Invalidating views");
                 the_grid.invalidateViews();
-            else
+            }
+            else {
+                Log.v(TAG, "else statement");
                 the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+            }
 
         }
         else {
@@ -134,7 +142,6 @@ public class LapseGridActivity extends ActionBarActivity {
                 public void onClick(View v) {
                     //Camera needs an extra in case of add picture
                     Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
-
                     startActivityForResult(i, REQUEST_PHOTO);
                 }
             });
@@ -142,7 +149,7 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
     public void onActivityResult( int requestCode, int resultCode, Intent data){
-        return;
+        Log.v(TAG, "onACtivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
             if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
