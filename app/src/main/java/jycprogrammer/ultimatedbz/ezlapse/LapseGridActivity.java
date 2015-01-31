@@ -7,11 +7,13 @@ import android.view.MenuItem;
 
 
 public class LapseGridActivity extends ActionBarActivity {
-
+    Button create_new_lapse;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_no_lapse);
+        // Get EZLapse Button
+
     }
 
 
