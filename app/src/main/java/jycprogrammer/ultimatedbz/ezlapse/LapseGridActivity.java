@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -124,6 +125,20 @@ public class LapseGridActivity extends ActionBarActivity {
             else {
                 Log.v(TAG, "else statement");
                 the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+                the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        //view every thing in lapse
+                    }
+                });
+
+                the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        //add to lapse
+                        return false;
+                    }
+                });
                 Log.v(TAG, "set");
             }
 
