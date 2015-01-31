@@ -4,5 +4,7 @@
     <string name="app_name">EZLapse</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="no_lapses">You have no EZLapses :(</string>
+    <string name="new_lapse_button">Create New EZLapse</string>
 
 </resources>
