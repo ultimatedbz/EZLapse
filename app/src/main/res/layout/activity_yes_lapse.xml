@@ -19,7 +19,7 @@
     android:layout_height="match_parent"
     android:numColumns="auto_fit"
     android:gravity="center"
-    android:columnWidth="150px"
+    android:columnWidth="120dp"
     android:stretchMode="spacingWidthUniform"
     tools:context=".LapseGridActivity">
 

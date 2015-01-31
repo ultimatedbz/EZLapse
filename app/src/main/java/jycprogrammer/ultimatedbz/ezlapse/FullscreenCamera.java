@@ -1,10 +1,12 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.annotation.TargetApi;
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -12,11 +14,13 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +28,7 @@ import java.util.UUID;
 public class FullscreenCamera extends ActionBarActivity {
 
     private static final String TAG = "FullscreenCamera";
+    public static final String EXTRA_PASS = "photo was passed";
 
     private View mProgressContainer;
     private Camera mCamera;
@@ -38,10 +43,16 @@ public class FullscreenCamera extends ActionBarActivity {
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
+            String filePath = "";
             boolean success = true;
             try{
-                os = openFileOutput(filename, Context.MODE_PRIVATE);
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                new File(directory).mkdirs();
+                os = new FileOutputStream(directory + filename);
+                filePath = directory + filename;
                 os.write(data);
+
+
             }catch (Exception e){
                 Log.e(TAG, "Error writing to file " + filename, e);
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
@@ -58,8 +69,25 @@ public class FullscreenCamera extends ActionBarActivity {
                     success = false;
                 }
             }
+            /*TODO add implementation
+              if this if first photo
+                title  and check and cancel, for now it always saves title
+              else
+                preview and check x*/
+
+            //for now, we are just directly setting title
             if(success) {
+                Log.v(TAG, "success");
                 /* picture is saved, do something with it, ask for title etc*/
+                Lapse newLapse = new Lapse("temporary title", new Date(), filePath);
+                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(EXTRA_PASS, true);
+
+                setResult(Activity.RESULT_OK, returnIntent);
+            }else{
+                Intent returnIntent = new Intent();
+                setResult(RESULT_CANCELED, returnIntent);
             }
             finish();
         }
@@ -78,7 +106,7 @@ public class FullscreenCamera extends ActionBarActivity {
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
         mProgressContainer.setVisibility(View.INVISIBLE);
 
-        Button takePictureButton = (Button) v.findViewById(R.id.lapse_camera_takePictureButton);
+        ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,13 +137,21 @@ public class FullscreenCamera extends ActionBarActivity {
                     return;
 
                 Camera.Parameters parameters = mCamera.getParameters();
-                Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                        height);
-                parameters.setPreviewSize(s.width, s.height);
 
-                s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                parameters.setPictureSize(s.width, s.height);
-                mCamera.setDisplayOrientation(90);
+/*
+                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+
+                if(display.getRotation() == Surface.ROTATION_0)
+*/
+
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
+                            height);
+                    parameters.setPreviewSize(s.width, s.height);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
+                    parameters.setPictureSize(s.width, s.height);
+                    mCamera.setDisplayOrientation(90);
+
 
 
                 mCamera.setParameters(parameters);
@@ -181,6 +217,8 @@ public class FullscreenCamera extends ActionBarActivity {
             mCamera = null;
         }
     }
+
+
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height){
         Camera.Size bestSize = sizes.get(0);
         int largestArea = bestSize.width * bestSize.height;
