@@ -1,16 +1,18 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
-import jycprogrammer.ultimatedbz.ezlapse.util.SystemUiHider;
-
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.view.Window;
+import android.view.WindowManager;
+
+import jycprogrammer.ultimatedbz.ezlapse.util.SystemUiHider;
 
 
 /**
@@ -19,7 +21,7 @@ import android.support.v4.app.NavUtils;
  *
  * @see SystemUiHider
  */
-public class FullscreenCamera extends Activity {
+public class FullscreenCamera extends ActionBarActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -50,8 +52,13 @@ public class FullscreenCamera extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
 
+/*
         setContentView(R.layout.activity_fullscreen_camera);
         setupActionBar();
 
@@ -115,7 +122,7 @@ public class FullscreenCamera extends Activity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);*/
     }
 
     @Override
