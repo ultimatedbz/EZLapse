@@ -1,7 +1,8 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.content.Intent;
-
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -31,6 +33,9 @@ public class LapseGridActivity extends ActionBarActivity {
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
 
+    public void updateUI{
+       // ((LapseAdapter) g)
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,15 +77,30 @@ public class LapseGridActivity extends ActionBarActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if(convertView == null) {
-                convertView = LapseGridActivity.this.getLayoutInflater().inflate(R.layout.lapse_icon_layout, parent, false);
+                convertView = LapseGridActivity.this.getLayoutInflater().
+                        inflate(R.layout.lapse_icon_layout, parent, false);
             }
-            ImageView picture = (ImageView) convertView.findViewById(R.id.grid_item_image);
-            TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
+
             //Eventually set picture to image from Photo classes in each Lapse
             //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
             //and/or the activity_yes_lapse.xml file
-            picture.setImageResource(R.drawable.ic_launcher);
-            text.setText(getItem(position).getTitle());
+
+            /* Displays latest picture*/
+            File imgFile = new  File(getItem(position).getLatest());
+
+            if(imgFile.exists()){
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                ImageView picture = (ImageView) convertView.
+                        findViewById(R.id.grid_item_image);
+                picture.setImageBitmap(myBitmap);
+
+                TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
+                text.setText(getItem(position).getTitle());
+            }
+
+
             return convertView;
         }
     }

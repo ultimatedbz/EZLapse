@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,10 +43,10 @@ public class FullscreenCamera extends ActionBarActivity {
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
+            String directory = "";
             boolean success = true;
             try{
-                Log.v(TAG, Environment.getExternalStorageDirectory().getAbsolutePath());
-                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
                 os.write(data);
@@ -67,9 +68,17 @@ public class FullscreenCamera extends ActionBarActivity {
                     success = false;
                 }
             }
+            /*TODO add implementation
+              if this if first photo
+                title  and check and cancel, for now it always saves title
+              else
+                preview and check x*/
+
+            //for now, we are just directly setting title
             if(success) {
                 /* picture is saved, do something with it, ask for title etc*/
-
+                Lapse newLapse = new Lapse("temporary title", new Date(), directory);
+                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
             }
             finish();
         }

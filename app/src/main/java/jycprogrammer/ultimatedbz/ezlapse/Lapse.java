@@ -1,7 +1,7 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -10,11 +10,14 @@ import java.util.UUID;
 public class Lapse {
     private UUID mId;
     private String mTitle;
-    private ArrayList<Photo> mPhoto;
+    private ArrayList<Photo> mPhotos;
 
-    public Lapse(String title) {
+    public Lapse(String title, Date date, String firstFilePath) {
         mId = UUID.randomUUID();
         mTitle = title;
+        Photo temp = new Photo(firstFilePath, date);
+        mPhotos = new ArrayList<Photo>();
+        mPhotos.add(temp);
     }
 
     public String getTitle() {
@@ -25,11 +28,14 @@ public class Lapse {
         return mId;
     }
 
-    public int getSize(){
-        return mPhoto.size();
+    public int getPhotoNum(){
+        return mPhotos.size();
     }
 
     public void setTitle(String title){
         mTitle = title;
+    }
+    public String getLatest(){
+        return mPhotos.get(mPhotos.size() - 1).getFilePath();
     }
 }
