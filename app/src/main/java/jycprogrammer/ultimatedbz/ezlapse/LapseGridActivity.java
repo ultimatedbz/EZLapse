@@ -53,13 +53,8 @@ public class LapseGridActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()){
             case R.id.action_new:
-                //supposed to be this
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
-                startActivity(i);
-//                //instead we want to test some shizz
-//                Lapse l = new Lapse("Lapse"+test++);
-//                mLapseGallery.add(l);
-//                updateView();
+                startActivityForResult(i, REQUEST_PHOTO);
                 return true;
             case R.id.action_search:
                 openSearch();
