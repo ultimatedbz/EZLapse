@@ -112,64 +112,14 @@ public class FullscreenCamera extends ActionBarActivity {
                     return;
 
                 Camera.Parameters parameters = mCamera.getParameters();
-
-                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-
-                if(display.getRotation() == Surface.ROTATION_0)
-                {
-                    /*working... portrait is squished */
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
-                            width);
-                    parameters.setPreviewSize(s.height, s.width);
-
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), height, width);
-                    parameters.setPictureSize(s.height, s.width);/*
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                            height);
-                    parameters.setPreviewSize(s.width, s.height);
-
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                    parameters.setPictureSize(s.width, s.height);*/
-                    //mCamera.setDisplayOrientation(90);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_90)
-                {
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                            height);
-                    parameters.setPreviewSize(s.width, s.height);
-
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                    parameters.setPictureSize(s.width, s.height);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_180)
-                {
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
-                            width);
-                    parameters.setPreviewSize(s.height, s.width);
-
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), height, width);
-                    parameters.setPictureSize(s.height, s.width);
-                }
-
-                if(display.getRotation() == Surface.ROTATION_270)
-                {
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                            height);
-                    parameters.setPreviewSize(s.width, s.height);
-
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                    parameters.setPictureSize(s.width, s.height);
-                  //  mCamera.setDisplayOrientation(180);
-                }
-/*
                 Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
                         height);
                 parameters.setPreviewSize(s.width, s.height);
 
                 s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                parameters.setPictureSize(s.width, s.height);*/
+                parameters.setPictureSize(s.width, s.height);
+                mCamera.setDisplayOrientation(90);
+
 
                 mCamera.setParameters(parameters);
                 try{
