@@ -118,19 +118,21 @@ public class FullscreenCamera extends ActionBarActivity {
                 if(display.getRotation() == Surface.ROTATION_0)
                 {
                     /*working... portrait is squished */
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
+                    /*Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
                             width);
                     parameters.setPreviewSize(s.height, s.width);
 
                     s = getBestSupportedSize(parameters.getSupportedPictureSizes(), height, width);
-                    parameters.setPictureSize(s.height, s.width);/*
+                    parameters.setPictureSize(s.height, s.width);
+                    */
+
                     Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
                             height);
                     parameters.setPreviewSize(s.width, s.height);
 
                     s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                    parameters.setPictureSize(s.width, s.height);*/
-                    //mCamera.setDisplayOrientation(90);
+                    parameters.setPictureSize(s.width, s.height);
+                    mCamera.setDisplayOrientation(90);
                 }
 
                 if(display.getRotation() == Surface.ROTATION_90)
