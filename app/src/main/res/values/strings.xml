@@ -5,6 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="no_lapses">You have no EZLapses :(</string>
+    <string name="yes_lapses">Eyyy this works :D</string>
     <string name="new_lapse_button">Create New EZLapse</string>
     <string name="title_activity_fullscreen_camera">FullscreenCamera</string>
     <string name="dummy_button">Dummy Button</string>
