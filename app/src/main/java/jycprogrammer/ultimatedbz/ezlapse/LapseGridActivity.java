@@ -1,19 +1,30 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 
 public class LapseGridActivity extends ActionBarActivity {
-    Button create_new_lapse;
+    Button create_lapse_button;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_no_lapse);
         // Get EZLapse Button
-
+        create_lapse_button = (Button) findViewById(R.id.no_ez_button);
+        create_lapse_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                //Camera doesn't need any special extras
+                Intent i =  new Intent(LapseGridActivity.this, FullscreenCamera.class);
+                startActivity(i);
+            }
+        });
     }
 
 
