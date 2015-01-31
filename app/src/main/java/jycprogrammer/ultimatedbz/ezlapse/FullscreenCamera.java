@@ -1,10 +1,10 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
@@ -15,9 +15,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -43,8 +44,13 @@ public class FullscreenCamera extends ActionBarActivity {
             FileOutputStream os = null;
             boolean success = true;
             try{
-                os = openFileOutput(filename, Context.MODE_PRIVATE);
+                Log.v(TAG, Environment.getExternalStorageDirectory().getAbsolutePath());
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                new File(directory).mkdirs();
+                os = new FileOutputStream(directory + filename);
                 os.write(data);
+
+
             }catch (Exception e){
                 Log.e(TAG, "Error writing to file " + filename, e);
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
@@ -63,6 +69,7 @@ public class FullscreenCamera extends ActionBarActivity {
             }
             if(success) {
                 /* picture is saved, do something with it, ask for title etc*/
+
             }
             finish();
         }
@@ -81,7 +88,7 @@ public class FullscreenCamera extends ActionBarActivity {
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
         mProgressContainer.setVisibility(View.INVISIBLE);
 
-        Button takePictureButton = (Button) v.findViewById(R.id.lapse_camera_takePictureButton);
+        ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
