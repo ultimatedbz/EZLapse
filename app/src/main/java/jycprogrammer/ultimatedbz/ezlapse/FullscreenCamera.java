@@ -265,10 +265,7 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     }
 
-    @Override
-    public void onDestroy(){
 
-    }
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height){
         Camera.Size bestSize = sizes.get(0);
         int largestArea = bestSize.width * bestSize.height;

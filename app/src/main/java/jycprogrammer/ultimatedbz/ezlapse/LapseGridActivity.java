@@ -83,13 +83,12 @@ public class LapseGridActivity extends ActionBarActivity {
                         inflate(R.layout.lapse_icon_layout, parent, false);
             }
 
-            //Eventually set picture to image from Photo classes in each Lapse
             //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
             //and/or the activity_yes_lapse.xml file
 
 
             /* Displays latest picture*/
-            Log.v(TAG,getItem(position).getLatest());//TODO
+            Log.v(TAG,getItem(position).getLatest());
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
@@ -130,6 +129,7 @@ public class LapseGridActivity extends ActionBarActivity {
             else {
                 Log.v(TAG, "else statement");
                 the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+                Log.v(TAG, "set");
             }
 
         }
