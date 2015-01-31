@@ -8,24 +8,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import java.util.ArrayList;
 
 
 public class LapseGridActivity extends ActionBarActivity {
-    Button create_lapse_button;
+    private Button create_lapse_button;
+    private ArrayList<Lapse> mLapseGallery;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_no_lapse);
-        // Get EZLapse Button
-        create_lapse_button = (Button) findViewById(R.id.no_ez_button);
-        create_lapse_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v){
-                //Camera doesn't need any special extra
-                Intent i =  new Intent(LapseGridActivity.this, FullscreenCamera.class);
-                startActivity(i);
-            }
-        });
+        if (mLapseGallery.size() == 0) {
+            setContentView(R.layout.activity_no_lapse);
+            // Get EZLapse Button
+            create_lapse_button = (Button) findViewById(R.id.no_ez_button);
+            create_lapse_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Camera doesn't need any special extra
+                    Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
+                    startActivity(i);
+                }
+            });
+        }
+        else {
+            setContentView(R.layout.activity_yes_lapse);
+        }
     }
 
 
