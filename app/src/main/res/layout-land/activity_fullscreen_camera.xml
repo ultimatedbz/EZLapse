@@ -3,22 +3,21 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
         <SurfaceView
             android:id="@+id/lapse_camera_surfaceView"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/take"
-            android:id="@+id/lapse_camera_takePictureButton"/>
+            android:id="@+id/lapse_camera_takePictureButton"
+            android:layout_gravity="center_vertical|right"/>
 
-    </LinearLayout>
+    </FrameLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

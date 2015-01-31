@@ -7,12 +7,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
@@ -67,14 +68,15 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     };
     @Override
+    @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_fullscreen_camera2);
+        setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
         mProgressContainer.setVisibility(View.INVISIBLE);
@@ -110,14 +112,68 @@ public class FullscreenCamera extends ActionBarActivity {
                     return;
 
                 Camera.Parameters parameters = mCamera.getParameters();
+
+                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+
+                if(display.getRotation() == Surface.ROTATION_0)
+                {
+                    /*working... portrait is squished */
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
+                            width);
+                    parameters.setPreviewSize(s.height, s.width);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), height, width);
+                    parameters.setPictureSize(s.height, s.width);/*
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
+                            height);
+                    parameters.setPreviewSize(s.width, s.height);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
+                    parameters.setPictureSize(s.width, s.height);*/
+                    //mCamera.setDisplayOrientation(90);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_90)
+                {
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
+                            height);
+                    parameters.setPreviewSize(s.width, s.height);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
+                    parameters.setPictureSize(s.width, s.height);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_180)
+                {
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), height,
+                            width);
+                    parameters.setPreviewSize(s.height, s.width);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), height, width);
+                    parameters.setPictureSize(s.height, s.width);
+                }
+
+                if(display.getRotation() == Surface.ROTATION_270)
+                {
+                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
+                            height);
+                    parameters.setPreviewSize(s.width, s.height);
+
+                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
+                    parameters.setPictureSize(s.width, s.height);
+                  //  mCamera.setDisplayOrientation(180);
+                }
+/*
                 Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
                         height);
                 parameters.setPreviewSize(s.width, s.height);
 
                 s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                parameters.setPictureSize(s.width, s.height);
+                parameters.setPictureSize(s.width, s.height);*/
+
                 mCamera.setParameters(parameters);
                 try{
+                    mCamera.setPreviewDisplay(holder);
                     mCamera.startPreview();
                 }catch(Exception e){
                     Log.e(TAG, "Could not start preview", e);
