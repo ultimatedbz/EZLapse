@@ -20,7 +20,7 @@ public class LapseGridActivity extends ActionBarActivity {
         create_lapse_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                //Camera doesn't need any special extras
+                //Camera doesn't need any special extra
                 Intent i =  new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivity(i);
             }
