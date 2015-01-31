@@ -1,5 +1,6 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,21 +21,20 @@ import java.util.ArrayList;
 
 
 public class LapseGridActivity extends ActionBarActivity {
+
+    private static final int REQUEST_PHOTO = 0;
+
     private Button create_lapse_button;
     private ArrayList<Lapse> mLapseGallery;
-    private int test;
     private GridView the_grid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
         super.onCreate(savedInstanceState);
+
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-    }
-
-    public void updateUI{
-       // ((LapseAdapter) g)
     }
 
     @Override
@@ -85,6 +85,7 @@ public class LapseGridActivity extends ActionBarActivity {
             //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
             //and/or the activity_yes_lapse.xml file
 
+
             /* Displays latest picture*/
             File imgFile = new  File(getItem(position).getLatest());
 
@@ -118,7 +119,11 @@ public class LapseGridActivity extends ActionBarActivity {
         if(mLapseGallery.size() > 0) {
             setContentView(R.layout.activity_yes_lapse);
             the_grid = (GridView) findViewById(R.id.main_grid);
-            the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+            if(the_grid.getAdapter() != null)
+                the_grid.invalidateViews();
+            else
+                the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+
         }
         else {
             setContentView(R.layout.activity_no_lapse);
@@ -129,10 +134,19 @@ public class LapseGridActivity extends ActionBarActivity {
                 public void onClick(View v) {
                     //Camera needs an extra in case of add picture
                     Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
-                    startActivity(i);
+
+                    startActivityForResult(i, REQUEST_PHOTO);
                 }
             });
         }
     }
 
+    public void onActivityResult( int requestCode, int resultCode, Intent data){
+        return;
+        if(resultCode != Activity.RESULT_OK) return;
+        if(requestCode == REQUEST_PHOTO){
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+                updateView();
+        }
+    }
 }

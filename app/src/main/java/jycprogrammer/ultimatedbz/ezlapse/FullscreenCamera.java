@@ -1,6 +1,7 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import java.util.UUID;
 public class FullscreenCamera extends ActionBarActivity {
 
     private static final String TAG = "FullscreenCamera";
+    public static final String EXTRA_PASS = "photo was passed";
 
     private View mProgressContainer;
     private Camera mCamera;
@@ -79,6 +81,8 @@ public class FullscreenCamera extends ActionBarActivity {
                 /* picture is saved, do something with it, ask for title etc*/
                 Lapse newLapse = new Lapse("temporary title", new Date(), directory);
                 LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                getIntent().putExtra(EXTRA_PASS, true);
+                setResult(Activity.RESULT_OK, getIntent());
             }
             finish();
         }
@@ -251,6 +255,11 @@ public class FullscreenCamera extends ActionBarActivity {
             mCamera.release();
             mCamera = null;
         }
+    }
+
+    @Override
+    public void onDestroy(){
+
     }
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height){
         Camera.Size bestSize = sizes.get(0);
