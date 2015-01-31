@@ -21,11 +21,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_camera"
             android:parentActivityName=".LapseGridActivity"
-<<<<<<< HEAD
             android:theme="@style/AppTheme" >
-=======
-            android:theme="@style/AppTheme">
->>>>>>> 6455cb03de7c3ca88103390a4f60b6372d32ed00
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="jycprogrammer.ultimatedbz.ezlapse.LapseGridActivity" />

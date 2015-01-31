@@ -7,13 +7,20 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 
 
 public class LapseGridActivity extends ActionBarActivity {
     private Button create_lapse_button;
     private ArrayList<Lapse> mLapseGallery;
+    GridView the_grid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +41,8 @@ public class LapseGridActivity extends ActionBarActivity {
         }
         else {
             setContentView(R.layout.activity_yes_lapse);
+            the_grid = (GridView) findViewById(R.id.main_grid);
+            the_grid.setAdapter(new LapseAdapter(mLapseGallery));
         }
     }
 
@@ -58,5 +67,26 @@ public class LapseGridActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private class LapseAdapter extends ArrayAdapter<Lapse> {
+        public LapseAdapter(ArrayList<Lapse> items) {
+            super(LapseGridActivity.this, 0, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if(convertView == null) {
+                convertView = LapseGridActivity.this.getLayoutInflater()
+                        .inflate(R.layout.lapse_icon_layout, parent, false);
+            }
+            ImageView picture = (ImageView) convertView.findViewById(R.id.grid_item_image);
+            TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
+            //Eventually set picture to image from Photo classes in each Lapse
+            //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
+            //and/or the activity_yes_lapse.xml file
+            picture.setImageResource(R.drawable.ic_launcher);
+            text.setText(getItem(position).getTitle());
+            return convertView;
+        }
     }
 }
