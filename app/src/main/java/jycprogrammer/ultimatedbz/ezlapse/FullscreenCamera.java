@@ -39,14 +39,12 @@ public class FullscreenCamera extends ActionBarActivity {
     public static final String EXTRA_PASS = "photo was passed";
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
 
-    private View mProgressContainer;
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private String tempTitle;
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
-            mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
     private boolean firstPic = true;
@@ -85,13 +83,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     success = false;
                 }
             }
-            /*TODO add implementation
-              if this if first photo
-                title  and check and cancel, for now it always saves title
-              else
-                preview and check x*/
 
-            //for now, we are just directly setting title
             if(success) {
                 String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
                 if (firstPic){
@@ -183,8 +175,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
-        mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
-        mProgressContainer.setVisibility(View.INVISIBLE);
+
 
         ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
 
