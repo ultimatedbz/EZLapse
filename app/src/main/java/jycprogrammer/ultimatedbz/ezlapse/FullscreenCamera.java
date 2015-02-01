@@ -4,21 +4,25 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.support.v4.app.DialogFragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.EditText;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -34,10 +38,10 @@ public class FullscreenCamera extends ActionBarActivity {
 
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
+    public static final String EXTRA_LAPSE_ID = "id of the lapse";
 
     private View mProgressContainer;
     private Camera mCamera;
-    private int cameraId;
     private SurfaceView mSurfaceView;
     private String tempTitle;
 
@@ -46,6 +50,8 @@ public class FullscreenCamera extends ActionBarActivity {
             mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
+    private boolean firstPic = true;
+    private UUID mLapseId;
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
@@ -65,6 +71,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
                         Toast.LENGTH_SHORT);
                 toast.show();
+
                 success = false;
             }finally{
                 try{
@@ -75,6 +82,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     Toast toast = Toast.makeText(getApplicationContext(), "Error closing the file " + filename,
                             Toast.LENGTH_SHORT);
                     toast.show();
+
                     success = false;
                 }
             }
@@ -92,6 +100,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 openDialogBox();
                 Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
                 LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(EXTRA_PASS, true);
 
@@ -133,10 +142,8 @@ public class FullscreenCamera extends ActionBarActivity {
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
 
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         super.onCreate(savedInstanceState);
+
 
         mCamera = null;
         tempTitle = "";
@@ -145,6 +152,43 @@ public class FullscreenCamera extends ActionBarActivity {
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
         mProgressContainer.setVisibility(View.INVISIBLE);
+
+        ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
+
+        if(getIntent().getExtras()!=null &&
+                    getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
+            {
+            firstPic = false;
+            mLapseId = (UUID) getIntent().getExtras().getSerializable(EXTRA_LAPSE_ID);
+            File imgFile = new File(LapseGallery.get(getApplicationContext()).getLapse(mLapseId)
+                    .getLatest());
+            if(imgFile.exists()){
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                iv.setImageBitmap(myBitmap);
+                iv.setScaleType(ImageView.ScaleType.FIT_XY);
+
+            }
+
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
+                alpha.setDuration(0); // Make animation instant
+                alpha.setFillAfter(true); // Tell it to persist after the animation ends
+                iv.startAnimation(alpha);
+            } else
+                iv.setAlpha(.5f);
+        }
+
+        /*else{
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                AlphaAnimation alpha = new AlphaAnimation(0F, 0F);
+                alpha.setDuration(0); // Make animation instant
+                alpha.setFillAfter(true); // Tell it to persist after the animation ends
+                iv.startAnimation(alpha);
+            } else
+                iv.setAlpha(0f);
+        }*/
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -178,11 +222,19 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 Camera.Parameters parameters = mCamera.getParameters();
 
-/*
+
                 Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
-                if(display.getRotation() == Surface.ROTATION_0)
-*/
+                int mRotation = display.getRotation();
+
+                parameters.setRotation(mRotation); //set rotation to save the picture
+
+                mCamera.setDisplayOrientation(mRotation); //set the rotation for preview camera
+
+                mCamera.setParameters(parameters);
+
+                Log.v(TAG, String.valueOf(display.getRotation()));
+
 
                     Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
                             height);
@@ -190,7 +242,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
                     s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
                     parameters.setPictureSize(s.width, s.height);
-                    mCamera.setDisplayOrientation(90);
 
 
 
@@ -273,4 +324,8 @@ public class FullscreenCamera extends ActionBarActivity {
         }
         return bestSize;
     }
+
+
+
+
 }

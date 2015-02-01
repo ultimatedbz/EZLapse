@@ -11,17 +11,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/opaque_image_view"
-            android:adjustViewBounds="true"/>
-        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/doggy_butt"
+            android:layout_gravity="center_vertical"
+            android:alpha="0.5"
+            android:src="@drawable/five_cm"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/take"
             android:id="@+id/lapse_camera_takePictureButton"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@null"/>
+            android:layout_gravity="center_vertical|right"/>
 
     </FrameLayout>
     <FrameLayout

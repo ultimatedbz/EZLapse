@@ -84,17 +84,13 @@ public class LapseGridActivity extends ActionBarActivity {
 
 
             /* Displays latest picture*/
-            Log.v(TAG,getItem(position).getLatest());
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
-                Log.v(TAG, "IMAGE FILE EXISTS!");
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big
-                Log.v(TAG, "Picture set");
                 TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
             }
@@ -136,10 +132,12 @@ public class LapseGridActivity extends ActionBarActivity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         //add to lapse
+                        Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
+                        i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
+                        startActivityForResult(i, REQUEST_PHOTO);
                         return false;
                     }
                 });
-                Log.v(TAG, "set");
             }
 
         }
@@ -162,7 +160,7 @@ public class LapseGridActivity extends ActionBarActivity {
         Log.v(TAG, "onActivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
-            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+            //if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
                 updateView();
         }
     }
