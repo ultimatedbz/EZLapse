@@ -124,7 +124,9 @@ public class LapseGridActivity extends ActionBarActivity {
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        //view every thing in lapse
+                        Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
+                        i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
+                        startActivity(i);
                     }
                 });
 
