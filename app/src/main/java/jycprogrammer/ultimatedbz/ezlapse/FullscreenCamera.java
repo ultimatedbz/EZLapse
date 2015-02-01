@@ -20,12 +20,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,14 +39,12 @@ public class FullscreenCamera extends ActionBarActivity {
     public static final String EXTRA_PASS = "photo was passed";
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
 
-    private View mProgressContainer;
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private final String tempTitle = "";
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
-            mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
     private boolean firstPic = true;
@@ -60,7 +56,7 @@ public class FullscreenCamera extends ActionBarActivity {
             final StringBuilder filePath = new StringBuilder("");
             boolean success = true;
             try{
-                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp/";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
                 filePath.append(directory + filename);
@@ -86,13 +82,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     success = false;
                 }
             }
-            /*TODO add implementation
-              if this if first photo
-                title  and check and cancel, for now it always saves title
-              else
-                preview and check x*/
 
-            //for now, we are just directly setting title
             if(success) {
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
@@ -101,7 +91,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 //final Intent returnIntent = new Intent();
                 //returnIntent.putExtra(EXTRA_PASS, true);
-
+                final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
                 final EditText textbox = new EditText(FullscreenCamera.this);
                 alertDialogBuilder.setTitle("Add a title to your EZLapse")
@@ -111,11 +101,31 @@ public class FullscreenCamera extends ActionBarActivity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int arg1) {
-                                Log.v(TAG, "positive button clicked");
-                                tempTitle.concat(textbox.getText().toString());
-                                Log.v("TESTING STRING", tempTitle);
-                                Lapse newLapse = new Lapse(textbox.getText().toString(), new Date(), filePath.toString());
-                                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                                if(firstPic) {
+                                    String tempTitle = textbox.getText().toString();
+                                    String LapseDirect = EZdirectory + tempTitle + "/";
+                                    File LapseDir = new File(LapseDirect);
+                                    LapseDir.mkdirs();
+                                    File to = new File(LapseDirect, tempTitle + "-Photo1.jpg");
+                                    File from = new File(filePath.toString());
+                                    from.renameTo(to);
+                                    Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
+                                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                                }
+                                else {
+                                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                                    String title = currentLapse.getTitle();
+                                    int size = currentLapse.getPhotoNum();
+
+                                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                                    File from = new File(filePath.toString());
+                                    from.renameTo(to);
+
+                                    currentLapse.add(new Photo(to.getPath(), new Date()));
+                                    dialog.dismiss();
+                                    finish();
+                                }
+
                                 dialog.dismiss();
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra(EXTRA_PASS, true);
@@ -148,6 +158,48 @@ public class FullscreenCamera extends ActionBarActivity {
                 //Lapse newLapse = new Lapse(tempTitle, new Date(), filePath.toString());
                 //LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
                 //setResult(Activity.RESULT_OK, returnIntent);
+/*
+                if (firstPic){
+                    Log.v(TAG, "success");
+                    openDialogBox();
+                    //assume DialogBox got the title
+
+                    //create new Lapse directory
+                    //assume for now that they always put a valid title
+                    tempTitle = "test";
+
+
+                    Log.v(TAG, EZdirectory);
+                    File LapseDir = new File(EZdirectory + tempTitle + "/");
+                    Log.v(TAG, LapseDir.getPath());
+                    LapseDir.mkdirs();
+
+                    //move file from /tmp to directory
+                    Log.v(TAG, filePath);
+                    File to = new File(EZdirectory + tempTitle + "/", tempTitle + "-Photo1.jpg");
+                    File from = new File(filePath);
+                    from.renameTo(to);
+
+                    Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
+                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(EXTRA_PASS, true);
+
+                    setResult(Activity.RESULT_OK, returnIntent);
+                }
+                else {
+                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                    String title = currentLapse.getTitle();
+                    int size = currentLapse.getPhotoNum();
+
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                    File from = new File(filePath);
+                    from.renameTo(to);
+                                       
+                    currentLapse.add(new Photo(to.getPath(), new Date()));
+                }
+>>>>>>> dbaa9ed2082ce9b002719328f92b188aa1e08bfa*/
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
@@ -157,89 +209,6 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     };
 
-    private void openDialogBox(final StringBuilder s){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        final EditText textbox = new EditText(this);
-        alertDialogBuilder.setTitle("Add a title to your EZLapse")
-                          .setView(textbox)
-                          .setCancelable(true);
-        alertDialogBuilder.setPositiveButton(R.string.confirm,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int arg1) {
-                        Log.v(TAG, "positive button clicked");
-                        s.append(textbox.getText().toString());
-                        dialog.dismiss();
-                    }
-                });
-        alertDialogBuilder.setNegativeButton(R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        s.append("\0");
-                        dialog.dismiss();
-                    }
-                });
-        alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                s.append("\0");
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
-    private class TitleDialog {
-        private final String input = "";
-        private AlertDialog theDialog;
-        public TitleDialog()
-        {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
-            final EditText textbox = new EditText(FullscreenCamera.this);
-            alertDialogBuilder.setTitle("Add a title to your EZLapse")
-                    //  .setView(textbox)
-                    .setMessage("Lapse Title")
-                    .setCancelable(true);
-            alertDialogBuilder.setPositiveButton(R.string.confirm,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int arg1) {
-                            Log.v(TAG, "positive button clicked");
-                            input.concat(textbox.getText().toString());
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialogBuilder.setNegativeButton(R.string.cancel,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            input.concat("\0");
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    input.concat("\0");
-                }
-            });
-            theDialog = alertDialogBuilder.create();
-        }
-        public void start()
-        {
-            if(!theDialog.isShowing())
-                theDialog.show();
-        }
-        public String toString()
-        {
-            return input;
-        }
-        public boolean isShowing()
-        {
-            return theDialog.isShowing();
-        }
-    }
     @Override
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
@@ -251,8 +220,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
-        mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
-        mProgressContainer.setVisibility(View.INVISIBLE);
+
 
         ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
 
@@ -271,25 +239,10 @@ public class FullscreenCamera extends ActionBarActivity {
                 iv.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }
-
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
                 iv.setAlpha(.5f);
         }
 
-        /*else{
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0F, 0F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
-                iv.setAlpha(0f);
-        }*/
+
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
