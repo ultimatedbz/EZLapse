@@ -23,8 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-import jycprogrammer.ultimatedbz.ezlapse.util.SearchableActivity;
-
 
 public class LapseGridActivity extends ActionBarActivity {
 

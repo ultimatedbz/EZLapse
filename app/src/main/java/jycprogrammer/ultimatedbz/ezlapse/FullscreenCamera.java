@@ -88,17 +88,16 @@ public class FullscreenCamera extends ActionBarActivity {
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
-                final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
-                final EditText textbox = new EditText(FullscreenCamera.this);
-                alertDialogBuilder.setTitle("Add a title to your EZLapse")
-                        .setView(textbox)
-                        .setCancelable(true);
-                alertDialogBuilder.setPositiveButton(R.string.confirm,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int arg1) {
-                                if(firstPic) {
+                if(firstPic) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
+                    final EditText textbox = new EditText(FullscreenCamera.this);
+                    alertDialogBuilder.setTitle("Add a title to your EZLapse")
+                            .setView(textbox)
+                            .setCancelable(true);
+                    alertDialogBuilder.setPositiveButton(R.string.confirm,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int arg1) {
                                     String tempTitle = textbox.getText().toString();
                                     String LapseDirect = EZdirectory + tempTitle + "/";
                                     File LapseDir = new File(LapseDirect);
@@ -108,50 +107,49 @@ public class FullscreenCamera extends ActionBarActivity {
                                     from.renameTo(to);
                                     Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
                                     LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
-                                }
-                                else {
-                                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
-                                    String title = currentLapse.getTitle();
-                                    int size = currentLapse.getPhotoNum();
 
-                                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
-                                    File from = new File(filePath.toString());
-                                    from.renameTo(to);
-
-                                    currentLapse.add(new Photo(to.getPath(), new Date()));
                                     dialog.dismiss();
+                                    Intent returnIntent = new Intent();
+                                    returnIntent.putExtra(EXTRA_PASS, true);
+                                    setResult(Activity.RESULT_OK, returnIntent);
                                     finish();
                                 }
+                            });
+                    alertDialogBuilder.setNegativeButton(R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Intent returnIntent = new Intent();
+                                    returnIntent.putExtra(EXTRA_PASS, true);
+                                    setResult(RESULT_CANCELED, returnIntent);
+                                    finish();
+                                }
+                            });
+                    alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            Intent returnIntent = new Intent();
+                            returnIntent.putExtra(EXTRA_PASS, true);
+                            setResult(RESULT_CANCELED, returnIntent);
+                            finish();
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+                else{
+                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                    String title = currentLapse.getTitle();
+                    int size = currentLapse.getPhotoNum();
 
-                                dialog.dismiss();
-                                Intent returnIntent = new Intent();
-                                returnIntent.putExtra(EXTRA_PASS, true);
-                                setResult(Activity.RESULT_OK, returnIntent);
-                                finish();
-                            }
-                        });
-                alertDialogBuilder.setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                Intent returnIntent = new Intent();
-                                returnIntent.putExtra(EXTRA_PASS, true);
-                                setResult(RESULT_CANCELED, returnIntent);
-                                finish();
-                            }
-                        });
-                alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra(EXTRA_PASS, true);
-                        setResult(RESULT_CANCELED, returnIntent);
-                        finish();
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                    File from = new File(filePath.toString());
+                    from.renameTo(to);
+
+                    currentLapse.add(new Photo(to.getPath(), new Date()));
+                    finish();
+                }
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
