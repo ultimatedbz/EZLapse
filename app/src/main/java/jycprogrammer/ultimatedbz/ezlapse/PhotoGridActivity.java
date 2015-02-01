@@ -57,7 +57,7 @@ public class PhotoGridActivity extends ActionBarActivity{
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = PhotoGridActivity.this.getLayoutInflater()
-                        .inflate(R.layout.lapse_icon_layout, parent, false);
+                        .inflate(R.layout.photo_icon_layout, parent, false);
 
             }
 

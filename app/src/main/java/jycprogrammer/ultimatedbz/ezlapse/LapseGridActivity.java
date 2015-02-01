@@ -32,7 +32,7 @@ public class LapseGridActivity extends ActionBarActivity {
     private static final int REQUEST_PHOTO = 0;
 
     private Button create_lapse_button;
-    private ArrayList<Lapse> mLapseGallery;
+    public ArrayList<Lapse> mLapseGallery;
     private LapseAdapter adapt;
     private GridView the_grid;
 
@@ -40,6 +40,7 @@ public class LapseGridActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(TAG, "onCreate");
         //Parse files in EZLapse to recreate all Lapses
         //create empty Lapse Gallery
         super.onCreate(savedInstanceState);
@@ -64,13 +65,14 @@ public class LapseGridActivity extends ActionBarActivity {
                     Photo photo = new Photo(absolutePath, new Date());
                     l.add(photo);
                 }
+                Log.v(TAG,"67");
                 if (l.getPhotoNum() > 0) {
-                    mLapseGallery.add(l);
+                    Log.v(TAG,"69");
+                    LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
                 }
             }
         }
 
-        Log.v(TAG, "6!!!!");
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
@@ -120,8 +122,29 @@ public class LapseGridActivity extends ActionBarActivity {
 
     @Override
     protected void onStop() {
-        mLapseGallery.clear();
+        Log.v(TAG, "onStop");
         super.onStop();
+    }
+    @Override
+    protected void onResume() {
+        Log.v(TAG, "onResume");
+        super.onResume();
+    }
+    @Override
+         protected void onPause() {
+        Log.v(TAG, "onPause");
+        super.onPause();
+    }
+    @Override
+    protected void onDestroy() {
+        Log.v(TAG, "onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.v(TAG, "onRestart");
+        super.onRestart();
     }
 
     private ArrayList<Lapse> doSearch(String query)
@@ -141,6 +164,7 @@ public class LapseGridActivity extends ActionBarActivity {
         }
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+                Log.v(TAG, "getView");
             if(convertView == null) {
                 convertView = LapseGridActivity.this.getLayoutInflater().
                         inflate(R.layout.lapse_icon_layout, parent, false);
@@ -154,10 +178,8 @@ public class LapseGridActivity extends ActionBarActivity {
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
-                Log.v(TAG, "IMAGE FILE EXISTS!");
                 Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
                 //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big
@@ -191,9 +213,9 @@ public class LapseGridActivity extends ActionBarActivity {
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
+               /*         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
-                        startActivity(i);
+                        startActivity(i);*/
                     }
                 });
 
@@ -202,6 +224,7 @@ public class LapseGridActivity extends ActionBarActivity {
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         //add to lapse
                         Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
+                        Log.v(TAG, "204: " + Integer.toString(mLapseGallery.size()));
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
                         return false;

@@ -13,13 +13,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -228,26 +226,22 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 Camera.Parameters parameters = mCamera.getParameters();
 
-
-                Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-
-                int mRotation = display.getRotation();
+                /*int mRotation = 90;
 
                 parameters.setRotation(mRotation); //set rotation to save the picture
 
                 mCamera.setDisplayOrientation(mRotation); //set the rotation for preview camera
 
-                mCamera.setParameters(parameters);
-
-                Log.v(TAG, String.valueOf(display.getRotation()));
+                mCamera.setParameters(parameters);*/
 
 
-                    Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                            height);
-                    parameters.setPreviewSize(s.width, s.height);
 
-                    s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                    parameters.setPictureSize(s.width, s.height);
+                Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
+                        height);
+                parameters.setPreviewSize(s.width, s.height);
+
+                s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
+                parameters.setPictureSize(s.width, s.height);
 
 
 
