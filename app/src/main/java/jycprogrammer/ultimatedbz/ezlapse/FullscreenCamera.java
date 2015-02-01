@@ -122,7 +122,7 @@ public class FullscreenCamera extends ActionBarActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     Intent returnIntent = new Intent();
-                                    returnIntent.putExtra(EXTRA_PASS, true);
+                                    returnIntent.putExtra(EXTRA_PASS, false);
                                     setResult(RESULT_CANCELED, returnIntent);
                                     finish();
                                 }
@@ -140,20 +140,16 @@ public class FullscreenCamera extends ActionBarActivity {
                     alertDialog.show();
                 }
                 else{
-                    Log.v("2nd pic", "entered else");
                     Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
-                    Log.v("2nd pic", "got lapse");
                     String title = currentLapse.getTitle();
-                    Log.v("2nd pic", "got title");
                     int size = currentLapse.getPhotoNum();
-                    Log.v("2nd pic", "got photonum");
                     File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
                     File from = new File(filePath.toString());
-                    Log.v("2nd pic", "Made files");
                     from.renameTo(to);
-                    Log.v("2nd pic", "renamed file");
                     currentLapse.add(new Photo(to.getPath(), new Date()));
-                    Log.v("2nd pic", "added photo");
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(EXTRA_PASS, true);
+                    setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }
             }else{
