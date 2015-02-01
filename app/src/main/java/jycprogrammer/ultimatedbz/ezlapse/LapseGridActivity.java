@@ -43,7 +43,7 @@ public class LapseGridActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         adapt = null;
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-
+        Log.v("On create", "On create");
         //probably gotta do null checks for new peeps, do that later
         File f = new File(EZdirectory);
         File[] files = f.listFiles();
@@ -82,7 +82,6 @@ public class LapseGridActivity extends ActionBarActivity {
             case R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivityForResult(i, REQUEST_PHOTO);
-
                 return true;
             case R.id.action_search:
                 onSearchRequested();
@@ -112,7 +111,11 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        mLapseGallery.clear();
+        super.onStop();
+    }
 
     private ArrayList<Lapse> doSearch(String query)
     {
