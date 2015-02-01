@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-import jycprogrammer.ultimatedbz.ezlapse.util.SearchableActivity;
 
 
 public class LapseGridActivity extends ActionBarActivity {
@@ -114,7 +113,11 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        mLapseGallery.clear();
+        super.onStop();
+    }
 
     private ArrayList<Lapse> doSearch(String query)
     {
