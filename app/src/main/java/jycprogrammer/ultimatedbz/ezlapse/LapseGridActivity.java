@@ -159,7 +159,7 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
     public void onActivityResult( int requestCode, int resultCode, Intent data){
-        Log.v(TAG, "onACtivityResult");
+        Log.v(TAG, "onActivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
             if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))

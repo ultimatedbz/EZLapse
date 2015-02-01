@@ -2,6 +2,9 @@ package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.support.v4.app.DialogFragment;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
@@ -14,8 +17,10 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,6 +39,8 @@ public class FullscreenCamera extends ActionBarActivity {
     private Camera mCamera;
     private int cameraId;
     private SurfaceView mSurfaceView;
+    private String tempTitle;
+
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
             mProgressContainer.setVisibility(View.VISIBLE);
@@ -57,6 +64,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 Log.e(TAG, "Error writing to file " + filename, e);
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
                         Toast.LENGTH_SHORT);
+                toast.show();
                 success = false;
             }finally{
                 try{
@@ -66,6 +74,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     Log.e(TAG, "Error closing the file " + filename, e);
                     Toast toast = Toast.makeText(getApplicationContext(), "Error closing the file " + filename,
                             Toast.LENGTH_SHORT);
+                    toast.show();
                     success = false;
                 }
             }
@@ -78,8 +87,10 @@ public class FullscreenCamera extends ActionBarActivity {
             //for now, we are just directly setting title
             if(success) {
                 Log.v(TAG, "success");
+                /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
-                Lapse newLapse = new Lapse("temporary title", new Date(), filePath);
+                openDialogBox();
+                Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
                 LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(EXTRA_PASS, true);
@@ -92,6 +103,32 @@ public class FullscreenCamera extends ActionBarActivity {
             finish();
         }
     };
+
+    private void openDialogBox(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Add a title to your EZLapse");
+        alertDialogBuilder.setPositiveButton(R.string.confirm,
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int arg1) {
+                        Log.v(TAG, "positive button clicked");
+                        dialog.dismiss();
+                    }
+                });
+        alertDialogBuilder.setNegativeButton(R.string.cancel,
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+
+    }
     @Override
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +137,9 @@ public class FullscreenCamera extends ActionBarActivity {
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         super.onCreate(savedInstanceState);
+
+        mCamera = null;
+        tempTitle = "";
 
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
@@ -202,10 +242,12 @@ public class FullscreenCamera extends ActionBarActivity {
     public void onResume(){
         super.onResume();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD){
-            mCamera = Camera.open(0);
-            Log.v(TAG, "on resume ran");
+            if (mCamera == null) {
+                mCamera = Camera.open(0);
+                Log.v(TAG, "on resume ran");
+            }
         }else{
-            mCamera = Camera.open();
+            if (mCamera == null) mCamera = Camera.open();
         }
     }
 
