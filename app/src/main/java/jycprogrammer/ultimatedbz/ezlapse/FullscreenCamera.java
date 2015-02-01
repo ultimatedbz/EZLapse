@@ -20,12 +20,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,14 +40,12 @@ public class FullscreenCamera extends ActionBarActivity {
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
     private final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
-    private View mProgressContainer;
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private String tempTitle;
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
-            mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
     private boolean firstPic = true;
@@ -88,13 +84,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     success = false;
                 }
             }
-            /*TODO add implementation
-              if this if first photo
-                title  and check and cancel, for now it always saves title
-              else
-                preview and check x*/
 
-            //for now, we are just directly setting title
             if(success) {
                 if (firstPic){
                     Log.v(TAG, "success");
@@ -185,8 +175,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
-        mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
-        mProgressContainer.setVisibility(View.INVISIBLE);
+
 
         ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
 
@@ -205,25 +194,10 @@ public class FullscreenCamera extends ActionBarActivity {
                 iv.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }
-
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
                 iv.setAlpha(.5f);
         }
 
-        /*else{
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0F, 0F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
-                iv.setAlpha(0f);
-        }*/
+
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
