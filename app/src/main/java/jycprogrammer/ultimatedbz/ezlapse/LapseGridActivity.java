@@ -1,10 +1,12 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class LapseGridActivity extends ActionBarActivity {
@@ -29,13 +32,50 @@ public class LapseGridActivity extends ActionBarActivity {
 
     private Button create_lapse_button;
     private ArrayList<Lapse> mLapseGallery;
+    private LapseAdapter adapt;
     private GridView the_grid;
+
+    public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
+        Log.v(TAG, "starting!!!!");
+        //Parse files in EZLapse to recreate all Lapses
+        //create empty Lapse Gallery
         super.onCreate(savedInstanceState);
+        adapt = null;
+        mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
 
+        //probably gotta do null checks for new peeps, do that later
+        Log.v(TAG, "1!!!!");
+        File f = new File(EZdirectory);
+        Log.v(TAG, "2!!!!");
+        File[] files = f.listFiles();
+        Log.v(TAG, "3!!!!");
+        if( files != null && files.length > 0)
+        for (File inFile : files) {
+
+            Log.v(TAG, "4!!!!");
+            if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+
+                Log.v(TAG, "5!!!!");
+                //for every picture in subdirectory, put into Lapse
+                File[] subFiles = inFile.listFiles();
+
+                Log.v(TAG, "6!!!!");
+                Lapse l = new Lapse(inFile.getName());
+                for (File subFile : subFiles) {
+                    String absolutePath = subFile.getAbsolutePath();
+                    Photo photo = new Photo(absolutePath, new Date());
+                    l.add(photo);
+                }
+                if (l.getPhotoNum() > 0) {
+                    mLapseGallery.add(l);
+                }
+            }
+        }
+
+        Log.v(TAG, "6!!!!");
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
@@ -56,18 +96,46 @@ public class LapseGridActivity extends ActionBarActivity {
             case R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivityForResult(i, REQUEST_PHOTO);
+
                 return true;
             case R.id.action_search:
-                openSearch();
-                return true;
-            case R.id.action_settings:
-                openSettings();
+                onSearchRequested();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public boolean onSearchRequested() {
+        Log.v("Search Requested", "Search was invoked");
+        return super.onSearchRequested();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.v("New Intent", "Got a search query");
+            ArrayList<Lapse> stuff = doSearch(query);
+            Log.v("New Intent", "Search is done");
+            updateView(stuff);
+        }
+    }
+
+
+
+    private ArrayList<Lapse> doSearch(String query)
+    {
+        Log.v("Query", "Doing the search");
+        ArrayList<Lapse> ret = new ArrayList<Lapse>();
+        for(Lapse a : mLapseGallery)
+        {
+            if(a.getTitle().contains(query))
+                ret.add(a);
+        }
+        return ret;
+    }
     private class LapseAdapter extends ArrayAdapter<Lapse> {
         public LapseAdapter(ArrayList<Lapse> items) {
             super(LapseGridActivity.this, 0, items);
@@ -87,12 +155,16 @@ public class LapseGridActivity extends ActionBarActivity {
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
-                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Log.v(TAG, "IMAGE FILE EXISTS!");
+                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
+                //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big
                 TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
+
             }
 
 
@@ -100,14 +172,8 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-    private void openSearch(){
 
-    }
 
-    private void openSettings(){
-        Intent i = new Intent(LapseGridActivity.this, SettingsActivity.class);
-        startActivity(i);
-    }
 
     private void updateView(){
         Log.v(TAG, "view updated, size of gallery is: " + mLapseGallery.size());
@@ -116,11 +182,13 @@ public class LapseGridActivity extends ActionBarActivity {
             the_grid = (GridView) findViewById(R.id.main_grid);
             if(the_grid.getAdapter() != null) {
                 Log.v(TAG,"Invalidating views");
-                the_grid.invalidateViews();
+                //the_grid.invalidateViews();
+                ((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
             }
             else {
                 Log.v(TAG, "else statement");
-                the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+                adapt = new LapseAdapter(mLapseGallery);
+                the_grid.setAdapter(adapt);
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -162,8 +230,28 @@ public class LapseGridActivity extends ActionBarActivity {
         Log.v(TAG, "onActivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
-            //if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
                 updateView();
         }
+    }
+    private void updateView(ArrayList<Lapse> terms){
+        if(terms.size() > 0)
+        {
+            /*LapseAdapter search_results = new LapseAdapter(terms);
+            LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
+            LapseAdapter temp = new LapseAdapter(mLapseGallery);*/
+            ArrayList<Lapse> temp = mLapseGallery;
+            mLapseGallery = terms;
+            updateView();
+            mLapseGallery = temp;
+        }
+        else
+        {
+            setContentView(R.layout.activity_lapse_grid);
+        }
+    }
+    private Bitmap get_from_file(String filepath, int width, int height)
+    {
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filepath), width, height, false);
     }
 }

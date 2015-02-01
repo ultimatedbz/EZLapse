@@ -22,12 +22,22 @@ public class Lapse {
         mPhotos.add(temp);
     }
 
+    public Lapse(String title){
+        mId = UUID.randomUUID();
+        mTitle = title;
+        mPhotos = new ArrayList<Photo>();
+    }
+
     public String getTitle() {
         return mTitle;
     }
 
     public UUID getId(){
         return mId;
+    }
+
+    public ArrayList<Photo> getPhotos(){
+        return mPhotos;
     }
 
     public int getPhotoNum(){
