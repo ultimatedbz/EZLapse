@@ -10,6 +10,12 @@
             android:id="@+id/lapse_camera_surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/opaque_image_view"
+            android:src="@drawable/five_cm"/>
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
