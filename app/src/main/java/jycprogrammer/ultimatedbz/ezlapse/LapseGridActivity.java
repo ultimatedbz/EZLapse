@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
+
 public class LapseGridActivity extends ActionBarActivity {
 
     private static String TAG = "lapse_grid_activity";
@@ -39,7 +40,6 @@ public class LapseGridActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "starting!!!!");
         //Parse files in EZLapse to recreate all Lapses
         //create empty Lapse Gallery
         super.onCreate(savedInstanceState);
@@ -47,22 +47,17 @@ public class LapseGridActivity extends ActionBarActivity {
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
 
         //probably gotta do null checks for new peeps, do that later
-        Log.v(TAG, "1!!!!");
+
         File f = new File(EZdirectory);
-        Log.v(TAG, "2!!!!");
         File[] files = f.listFiles();
-        Log.v(TAG, "3!!!!");
         if( files != null && files.length > 0)
         for (File inFile : files) {
 
-            Log.v(TAG, "4!!!!");
             if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
 
-                Log.v(TAG, "5!!!!");
                 //for every picture in subdirectory, put into Lapse
                 File[] subFiles = inFile.listFiles();
 
-                Log.v(TAG, "6!!!!");
                 Lapse l = new Lapse(inFile.getName());
                 for (File subFile : subFiles) {
                     String absolutePath = subFile.getAbsolutePath();
@@ -123,7 +118,11 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        mLapseGallery.clear();
+        super.onStop();
+    }
 
     private ArrayList<Lapse> doSearch(String query)
     {
