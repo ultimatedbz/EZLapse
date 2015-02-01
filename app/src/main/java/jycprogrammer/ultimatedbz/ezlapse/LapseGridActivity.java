@@ -1,6 +1,7 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 
+import jycprogrammer.ultimatedbz.ezlapse.util.SearchableActivity;
+
 
 public class LapseGridActivity extends ActionBarActivity {
 
@@ -35,7 +38,6 @@ public class LapseGridActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
         super.onCreate(savedInstanceState);
-
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
@@ -56,9 +58,10 @@ public class LapseGridActivity extends ActionBarActivity {
             case R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivityForResult(i, REQUEST_PHOTO);
+
                 return true;
             case R.id.action_search:
-                openSearch();
+                onSearchRequested();
                 return true;
             case R.id.action_settings:
                 openSettings();
@@ -68,6 +71,27 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.v("New Intent", "Got a search query");
+            ArrayList<Lapse> stuff = doSearch(query);
+            updateView(stuff);
+        }
+    }
+
+    private ArrayList<Lapse> doSearch(String query)
+    {
+        Log.v("Query", "Doing the search");
+        ArrayList<Lapse> ret = new ArrayList<Lapse>();
+        for(Lapse a : mLapseGallery)
+        {
+            if(a.getTitle().contains(query))
+                ret.add(a);
+        }
+        return ret;
+    }
     private class LapseAdapter extends ArrayAdapter<Lapse> {
         public LapseAdapter(ArrayList<Lapse> items) {
             super(LapseGridActivity.this, 0, items);
@@ -89,7 +113,8 @@ public class LapseGridActivity extends ActionBarActivity {
 
             if(imgFile.exists()){
                 Log.v(TAG, "IMAGE FILE EXISTS!");
-                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 150,150);
+                //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
@@ -97,6 +122,7 @@ public class LapseGridActivity extends ActionBarActivity {
                 Log.v(TAG, "Picture set");
                 TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
+
             }
 
 
@@ -104,9 +130,6 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-    private void openSearch(){
-
-    }
 
     private void openSettings(){
         Intent i = new Intent(LapseGridActivity.this, SettingsActivity.class);
@@ -165,5 +188,23 @@ public class LapseGridActivity extends ActionBarActivity {
             if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
                 updateView();
         }
+    }
+    private void updateView(ArrayList<Lapse> terms){
+        if(terms.size() > 0)
+        {
+            LapseAdapter search_results = new LapseAdapter(terms);
+            LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
+            the_grid.setAdapter(search_results);
+            updateView();
+            the_grid.setAdapter(all_pics);
+        }
+        else
+        {
+            setContentView(R.layout.activity_lapse_grid);
+        }
+    }
+    private Bitmap get_from_file(String filepath, int width, int height)
+    {
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filepath), width, height, false);
     }
 }
