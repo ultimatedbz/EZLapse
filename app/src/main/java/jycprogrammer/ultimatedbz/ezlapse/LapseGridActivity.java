@@ -33,6 +33,7 @@ public class LapseGridActivity extends ActionBarActivity {
     private ArrayList<Lapse> mLapseGallery;
     private LapseAdapter adapt;
     private GridView the_grid;
+    private boolean results = false;
 
     public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
@@ -43,10 +44,10 @@ public class LapseGridActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         adapt = null;
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-        Log.v("On create", "On create");
         //probably gotta do null checks for new peeps, do that later
         File f = new File(EZdirectory);
         File[] files = f.listFiles();
+        if(files != null && files.length > 0)
         for (File inFile : files)
             if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
                 //for every picture in subdirectory, put into Lapse

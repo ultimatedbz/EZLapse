@@ -88,6 +88,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
+                Log.v("PIc success", "Picture, " + firstPic);
                 if(firstPic) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
                     final EditText textbox = new EditText(FullscreenCamera.this);
@@ -139,15 +140,20 @@ public class FullscreenCamera extends ActionBarActivity {
                     alertDialog.show();
                 }
                 else{
+                    Log.v("2nd pic", "entered else");
                     Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                    Log.v("2nd pic", "got lapse");
                     String title = currentLapse.getTitle();
+                    Log.v("2nd pic", "got title");
                     int size = currentLapse.getPhotoNum();
-
+                    Log.v("2nd pic", "got photonum");
                     File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
                     File from = new File(filePath.toString());
+                    Log.v("2nd pic", "Made files");
                     from.renameTo(to);
-
+                    Log.v("2nd pic", "renamed file");
                     currentLapse.add(new Photo(to.getPath(), new Date()));
+                    Log.v("2nd pic", "added photo");
                     finish();
                 }
             }else{
@@ -229,7 +235,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
-                int mRotation = display.getRotation();
+                int mRotation = 90;
 
                 parameters.setRotation(mRotation); //set rotation to save the picture
 
