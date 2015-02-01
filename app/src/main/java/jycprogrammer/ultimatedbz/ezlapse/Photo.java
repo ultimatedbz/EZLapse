@@ -15,7 +15,6 @@ public class Photo {
         setId(UUID.randomUUID());
         setFilePath(filePath);
         setDate(date);
-
     }
 
     public String getFilePath() {

@@ -40,6 +40,7 @@ public class FullscreenCamera extends ActionBarActivity {
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
+    private final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
     private View mProgressContainer;
     private Camera mCamera;
@@ -95,7 +96,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
             //for now, we are just directly setting title
             if(success) {
-                String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
                 if (firstPic){
                     Log.v(TAG, "success");
                     /*Create AlertDialog that writes into tempTitle*/
@@ -135,7 +135,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
                     File from = new File(filePath);
                     from.renameTo(to);
-                                       
+
                     currentLapse.add(new Photo(to.getPath(), new Date()));
                 }
             }else{
