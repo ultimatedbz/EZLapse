@@ -32,10 +32,12 @@ public class LapseGridActivity extends ActionBarActivity {
 
     private Button create_lapse_button;
     private ArrayList<Lapse> mLapseGallery;
+    private LapseAdapter adapt;
     private GridView the_grid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        adapt = null;
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
         super.onCreate(savedInstanceState);
         updateView();
@@ -72,11 +74,23 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
     @Override
+    public boolean onSearchRequested() {
+        Log.v("Search Requested", "Search was invoked");
+        return super.onSearchRequested();
+    }
+
+   /* @Override
+    public void startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData, boolean globalSearch) {
+
+    }
+*/
+    @Override
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.v("New Intent", "Got a search query");
             ArrayList<Lapse> stuff = doSearch(query);
+            Log.v("New Intent", "Search is done");
             updateView(stuff);
         }
     }
@@ -142,11 +156,13 @@ public class LapseGridActivity extends ActionBarActivity {
             the_grid = (GridView) findViewById(R.id.main_grid);
             if(the_grid.getAdapter() != null) {
                 Log.v(TAG,"Invalidating views");
-                the_grid.invalidateViews();
+                //the_grid.invalidateViews();
+                ((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
             }
             else {
                 Log.v(TAG, "else statement");
-                the_grid.setAdapter(new LapseAdapter(mLapseGallery));
+                adapt = new LapseAdapter(mLapseGallery);
+                the_grid.setAdapter(adapt);
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -199,9 +215,10 @@ public class LapseGridActivity extends ActionBarActivity {
         {
             LapseAdapter search_results = new LapseAdapter(terms);
             LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
-            the_grid.setAdapter(search_results);
+            LapseAdapter temp = new LapseAdapter(mLapseGallery);
+            all_pics = search_results;
             updateView();
-            the_grid.setAdapter(all_pics);
+            all_pics = temp;
         }
         else
         {
