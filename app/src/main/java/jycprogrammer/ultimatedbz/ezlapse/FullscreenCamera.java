@@ -44,6 +44,7 @@ public class FullscreenCamera extends ActionBarActivity {
             mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
+    private boolean firstPic = true;
     private UUID mLapseId;
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
         public void onPictureTaken(byte[] data, Camera camera){
@@ -128,7 +129,11 @@ public class FullscreenCamera extends ActionBarActivity {
 */
                 /* picture is saved, do something with it, ask for title etc*/
                 Lapse newLapse = new Lapse("temporary title", new Date(), filePath);
-                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                if(firstPic)
+                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                else
+                    LapseGallery.get(getApplicationContext()).getLapse(mLapseId)
+                            .add( new Photo(filePath, new Date()));
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(EXTRA_PASS, true);
 
@@ -145,7 +150,6 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.v(TAG,"4");
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
@@ -156,6 +160,7 @@ public class FullscreenCamera extends ActionBarActivity {
         if(getIntent().getExtras()!=null &&
                     getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
             {
+            firstPic = false;
             mLapseId = (UUID) getIntent().getExtras().getSerializable(EXTRA_LAPSE_ID);
             File imgFile = new File(LapseGallery.get(getApplicationContext()).getLapse(mLapseId)
                     .getLatest());

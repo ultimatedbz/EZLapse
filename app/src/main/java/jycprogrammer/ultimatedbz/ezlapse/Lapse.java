@@ -1,5 +1,7 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -36,6 +38,13 @@ public class Lapse {
         mTitle = title;
     }
     public String getLatest(){
+        Log.v("asdf", mPhotos.get(mPhotos.size() - 1).getFilePath());
+        Log.v("asdf", Integer.toString(mPhotos.size()));
         return mPhotos.get(mPhotos.size() - 1).getFilePath();
+
+    }
+
+    public void add(Photo photo){
+        mPhotos.add(photo);
     }
 }

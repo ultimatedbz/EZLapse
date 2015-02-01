@@ -84,7 +84,6 @@ public class LapseGridActivity extends ActionBarActivity {
 
 
             /* Displays latest picture*/
-            Log.v(TAG,getItem(position).getLatest());
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
@@ -133,16 +132,12 @@ public class LapseGridActivity extends ActionBarActivity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         //add to lapse
-                        Log.v(TAG,"1");
                         Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
-                        Log.v(TAG,"2");
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
-                        Log.v(TAG,"3");
-                        startActivity(i);
+                        startActivityForResult(i, REQUEST_PHOTO);
                         return false;
                     }
                 });
-                Log.v(TAG, "set");
             }
 
         }
@@ -165,7 +160,7 @@ public class LapseGridActivity extends ActionBarActivity {
         Log.v(TAG, "onACtivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
-            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+            //if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
                 updateView();
         }
     }
