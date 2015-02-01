@@ -119,7 +119,6 @@ public class LapseGridActivity extends ActionBarActivity {
                 ImageView picture = (ImageView) convertView.
                         findViewById(R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big
-                Log.v(TAG, "Picture set");
                 TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
 
@@ -159,6 +158,12 @@ public class LapseGridActivity extends ActionBarActivity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         //add to lapse
+                        Log.v(TAG,"1");
+                        Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
+                        Log.v(TAG,"2");
+                        i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
+                        Log.v(TAG,"3");
+                        startActivity(i);
                         return false;
                     }
                 });
