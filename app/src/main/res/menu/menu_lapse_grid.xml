@@ -16,4 +16,13 @@
           android:title="@string/action_settings"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+
+    <item android:id="@+id/export_gif"
+          android:title="Export as gif"
+          android:orderInCategory="2"
+          app:showAsAction="never"/>
+    <item android:id="@+id/share_with_friends"
+          android:title="Share"
+          android:orderInCategory="2"
+          app:showAsAction="never"/>
 </menu>

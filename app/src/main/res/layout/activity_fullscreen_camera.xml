@@ -19,5 +19,29 @@
             android:id="@+id/lapse_camera_takePictureButton"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@null"/>
-
+        <ImageButton
+            android:id="@+id/change_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:paddingTop="40dp"
+            android:paddingRight="40dp"
+            android:src="@drawable/five_cm"
+            android:background="@null"/>
+        <ImageButton
+            android:id="@+id/confirm_take"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:paddingRight="40dp"
+            android:src="@drawable/smile"
+            android:background="@null"/>
+        <ImageButton
+            android:id="@+id/cancel_take"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|left"
+            android:paddingLeft="40dp"
+            android:src="@drawable/puss"
+            android:background="@null"/>
 </FrameLayout>

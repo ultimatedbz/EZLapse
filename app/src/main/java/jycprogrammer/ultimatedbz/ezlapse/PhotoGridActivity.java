@@ -1,9 +1,12 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -50,6 +53,28 @@ public class PhotoGridActivity extends ActionBarActivity{
             }
         });
     }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_photo_grid, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.show_slideshow:
+                Intent in = new Intent(PhotoGridActivity.this, PhotoSlideshowActivity.class);
+                in.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseId);
+                startActivity(in);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     private class PhotoAdapter extends ArrayAdapter<Photo> {
         public PhotoAdapter(ArrayList<Photo> items){super(PhotoGridActivity.this, 0, items);}

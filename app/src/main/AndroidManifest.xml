@@ -45,7 +45,7 @@
             android:name=".PhotoGridActivity"
             android:label="@string/title_activity_photogrid"
             android:parentActivityName=".LapseGridActivity"
-            android:theme="@style/FullscreenTheme" >
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".PhotoSlideshowActivity"

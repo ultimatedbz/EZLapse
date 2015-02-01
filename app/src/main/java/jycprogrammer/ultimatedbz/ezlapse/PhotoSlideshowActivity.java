@@ -2,12 +2,10 @@ package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.Animation;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -37,6 +35,7 @@ public class PhotoSlideshowActivity extends ActionBarActivity {
         }
         setContentView(R.layout.activity_photo_slideshow2);
         anim = new AnimationDrawable();
+        anim.setOneShot(false);
         for (Photo p : mPhotoGallery) {
             anim.addFrame(Drawable.createFromPath(p.getFilePath()), 500);
         }

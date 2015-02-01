@@ -41,6 +41,8 @@ public class FullscreenCamera extends ActionBarActivity {
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private final String tempTitle = "";
+    private static boolean inPreview = false;
+    private static int currentCameraId = -5;
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
@@ -168,10 +170,14 @@ public class FullscreenCamera extends ActionBarActivity {
 
         mCamera = null;
 
+        if(currentCameraId < 0)
+            currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
 
-
+        v.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
+        v.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
         ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
 
         if(getIntent().getExtras()!=null &&
@@ -192,7 +198,73 @@ public class FullscreenCamera extends ActionBarActivity {
                 iv.setAlpha(.5f);
         }
 
+        ImageButton changeCamera = (ImageButton) v.findViewById(R.id.change_camera);
+        changeCamera.setVisibility(View.INVISIBLE);
+/*        changeCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (inPreview) {
+                    mCamera.stopPreview();
+                }
+//NB: if you don't release the current camera before switching, you app will crash
+                mCamera.release();
+//swap the id of the camera to be used
+                if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                }
+                else {
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+                }
+                mCamera = Camera.open(currentCameraId);
 
+                SurfaceHolder holder = mSurfaceView.getHolder();
+                holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+                holder.addCallback(new SurfaceHolder.Callback() {
+                    @Override
+                    public void surfaceCreated(SurfaceHolder holder) {
+                        try{
+                            if(mCamera != null){
+                                mCamera.setPreviewDisplay(holder);
+                            }
+                        }catch (IOException exception){
+                            Log.e(TAG, "Error setting up preview display", exception);
+                        }
+                    }
+
+                    @Override
+                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                        if (mCamera == null)
+                            return;
+
+                        Camera.Parameters parameters = mCamera.getParameters();
+
+                *int mRotation = 90;
+                parameters.setRotation(mRotation); *
+
+                        mCamera.setParameters(parameters);
+                        try{
+                            mCamera.setPreviewDisplay(holder);
+                            mCamera.startPreview();
+                            inPreview = true;
+                        }catch(Exception e){
+                            Log.e(TAG, "Could not start preview", e);
+                            mCamera.release();
+                            mCamera = null;
+                        }
+                    }
+
+                    @Override
+                    public void surfaceDestroyed(SurfaceHolder holder) {
+                        if( mCamera != null){
+                            mCamera.stopPreview();
+                            inPreview = false;
+                        }
+                    }
+                });
+
+            }
+        });*/
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -233,6 +305,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 try{
                     mCamera.setPreviewDisplay(holder);
                     mCamera.startPreview();
+                    inPreview = true;
                 }catch(Exception e){
                     Log.e(TAG, "Could not start preview", e);
                     mCamera.release();
@@ -244,6 +317,7 @@ public class FullscreenCamera extends ActionBarActivity {
             public void surfaceDestroyed(SurfaceHolder holder) {
                 if( mCamera != null){
                     mCamera.stopPreview();
+                    inPreview = false;
                 }
             }
         });
