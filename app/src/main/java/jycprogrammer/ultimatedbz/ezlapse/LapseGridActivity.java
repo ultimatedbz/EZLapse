@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-
 public class LapseGridActivity extends ActionBarActivity {
 
     private static String TAG = "lapse_grid_activity";
@@ -35,6 +34,7 @@ public class LapseGridActivity extends ActionBarActivity {
     public ArrayList<Lapse> mLapseGallery;
     private LapseAdapter adapt;
     private GridView the_grid;
+    private boolean results = false;
 
     public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
@@ -44,15 +44,13 @@ public class LapseGridActivity extends ActionBarActivity {
         //Parse files in EZLapse to recreate all Lapses
         //create empty Lapse Gallery
         super.onCreate(savedInstanceState);
-        adapt = null;
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-
         //probably gotta do null checks for new peeps, do that later
 
         File f = new File(EZdirectory);
         File[] files = f.listFiles();
-        if( files != null && files.length > 0)
-        for (File inFile : files) {
+        if(files != null && files.length > 0 && mLapseGallery.size() == 0)
+        for (File inFile : files)
 
             if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
 
@@ -71,7 +69,6 @@ public class LapseGridActivity extends ActionBarActivity {
                     LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
                 }
             }
-        }
 
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
@@ -93,7 +90,6 @@ public class LapseGridActivity extends ActionBarActivity {
             case R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivityForResult(i, REQUEST_PHOTO);
-
                 return true;
             case R.id.action_search:
                 onSearchRequested();
@@ -120,32 +116,6 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        Log.v(TAG, "onStop");
-        super.onStop();
-    }
-    @Override
-    protected void onResume() {
-        Log.v(TAG, "onResume");
-        super.onResume();
-    }
-    @Override
-         protected void onPause() {
-        Log.v(TAG, "onPause");
-        super.onPause();
-    }
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onRestart() {
-        Log.v(TAG, "onRestart");
-        super.onRestart();
-    }
 
     private ArrayList<Lapse> doSearch(String query)
     {
@@ -203,19 +173,23 @@ public class LapseGridActivity extends ActionBarActivity {
             the_grid = (GridView) findViewById(R.id.main_grid);
             if(the_grid.getAdapter() != null) {
                 Log.v(TAG,"Invalidating views");
-                //the_grid.invalidateViews();
-                ((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
+                the_grid.invalidateViews();
+                //((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
             }
             else {
                 Log.v(TAG, "else statement");
-                adapt = new LapseAdapter(mLapseGallery);
-                the_grid.setAdapter(adapt);
+                the_grid.setAdapter(new LapseAdapter(mLapseGallery));
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               /*         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
+
+                        Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
-                        startActivity(i);*/
+                        startActivity(i);
+
+                       /* Intent i = new Intent(LapseGridActivity.this, PhotoSlideshowActivity.class);
+                        i.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
+                        startActivityForResult(i, REQUEST_PHOTO);*/
                     }
                 });
 
@@ -227,7 +201,7 @@ public class LapseGridActivity extends ActionBarActivity {
                         Log.v(TAG, "204: " + Integer.toString(mLapseGallery.size()));
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
-                        return false;
+                        return true;
                     }
                 });
             }
@@ -249,19 +223,16 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
     public void onActivityResult( int requestCode, int resultCode, Intent data){
-        Log.v(TAG, "onActivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
-            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) {
                 updateView();
+            }
         }
     }
     private void updateView(ArrayList<Lapse> terms){
         if(terms.size() > 0)
         {
-            /*LapseAdapter search_results = new LapseAdapter(terms);
-            LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
-            LapseAdapter temp = new LapseAdapter(mLapseGallery);*/
             ArrayList<Lapse> temp = mLapseGallery;
             mLapseGallery = terms;
             updateView();

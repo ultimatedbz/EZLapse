@@ -23,6 +23,7 @@ public class PhotoGridActivity extends ActionBarActivity{
     private ArrayList<Photo> mPhotoGallery;
     private UUID mLapseId;
     private GridView mGrid;
+    private static final String DIALOG_IMAGE = "image";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,16 @@ public class PhotoGridActivity extends ActionBarActivity{
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
+
+            final int p = position;
+            picture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+                    ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
+                }
+            });
 
 
             return convertView;

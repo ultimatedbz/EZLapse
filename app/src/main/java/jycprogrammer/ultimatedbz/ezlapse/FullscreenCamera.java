@@ -86,17 +86,17 @@ public class FullscreenCamera extends ActionBarActivity {
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
-                final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
-                final EditText textbox = new EditText(FullscreenCamera.this);
-                alertDialogBuilder.setTitle("Add a title to your EZLapse")
-                        .setView(textbox)
-                        .setCancelable(true);
-                alertDialogBuilder.setPositiveButton(R.string.confirm,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int arg1) {
-                                if(firstPic) {
+                Log.v("PIc success", "Picture, " + firstPic);
+                if(firstPic) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
+                    final EditText textbox = new EditText(FullscreenCamera.this);
+                    alertDialogBuilder.setTitle("Add a title to your EZLapse")
+                            .setView(textbox)
+                            .setCancelable(true);
+                    alertDialogBuilder.setPositiveButton(R.string.confirm,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int arg1) {
                                     String tempTitle = textbox.getText().toString();
                                     String LapseDirect = EZdirectory + tempTitle + "/";
                                     File LapseDir = new File(LapseDirect);
@@ -106,50 +106,50 @@ public class FullscreenCamera extends ActionBarActivity {
                                     from.renameTo(to);
                                     Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
                                     LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
-                                }
-                                else {
-                                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
-                                    String title = currentLapse.getTitle();
-                                    int size = currentLapse.getPhotoNum();
 
-                                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
-                                    File from = new File(filePath.toString());
-                                    from.renameTo(to);
-
-                                    currentLapse.add(new Photo(to.getPath(), new Date()));
                                     dialog.dismiss();
+                                    Intent returnIntent = new Intent();
+                                    returnIntent.putExtra(EXTRA_PASS, true);
+                                    setResult(Activity.RESULT_OK, returnIntent);
                                     finish();
                                 }
-
-                                dialog.dismiss();
-                                Intent returnIntent = new Intent();
-                                returnIntent.putExtra(EXTRA_PASS, true);
-                                setResult(Activity.RESULT_OK, returnIntent);
-                                finish();
-                            }
-                        });
-                alertDialogBuilder.setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                Intent returnIntent = new Intent();
-                                returnIntent.putExtra(EXTRA_PASS, true);
-                                setResult(RESULT_CANCELED, returnIntent);
-                                finish();
-                            }
-                        });
-                alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra(EXTRA_PASS, true);
-                        setResult(RESULT_CANCELED, returnIntent);
-                        finish();
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                            });
+                    alertDialogBuilder.setNegativeButton(R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Intent returnIntent = new Intent();
+                                    returnIntent.putExtra(EXTRA_PASS, false);
+                                    setResult(RESULT_CANCELED, returnIntent);
+                                    finish();
+                                }
+                            });
+                    alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            Intent returnIntent = new Intent();
+                            returnIntent.putExtra(EXTRA_PASS, true);
+                            setResult(RESULT_CANCELED, returnIntent);
+                            finish();
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+                else{
+                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                    String title = currentLapse.getTitle();
+                    int size = currentLapse.getPhotoNum();
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                    File from = new File(filePath.toString());
+                    from.renameTo(to);
+                    currentLapse.add(new Photo(to.getPath(), new Date()));
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(EXTRA_PASS, true);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+                }
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
@@ -227,23 +227,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 Camera.Parameters parameters = mCamera.getParameters();
 
                 /*int mRotation = 90;
-
-                parameters.setRotation(mRotation); //set rotation to save the picture
-
-                mCamera.setDisplayOrientation(mRotation); //set the rotation for preview camera
-
-                mCamera.setParameters(parameters);*/
-
-
-
-                Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), width,
-                        height);
-                parameters.setPreviewSize(s.width, s.height);
-
-                s = getBestSupportedSize(parameters.getSupportedPictureSizes(), width, height);
-                parameters.setPictureSize(s.width, s.height);
-
-
+                parameters.setRotation(mRotation); */
 
                 mCamera.setParameters(parameters);
                 try{
