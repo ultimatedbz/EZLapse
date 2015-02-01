@@ -3,6 +3,8 @@ package jycprogrammer.ultimatedbz.ezlapse;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
+    public static final String EXTRA_LAPSE_ID = "id of the lapse";
 
     private View mProgressContainer;
     private Camera mCamera;
@@ -41,6 +44,7 @@ public class FullscreenCamera extends ActionBarActivity {
             mProgressContainer.setVisibility(View.VISIBLE);
         }
     };
+    private UUID mLapseId;
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
@@ -141,20 +145,47 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        Log.v(TAG,"4");
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
         mProgressContainer = v.findViewById(R.id.lapse_camera_progressContainer);
         mProgressContainer.setVisibility(View.INVISIBLE);
 
         ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
-        if(android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
-            alpha.setDuration(0); // Make animation instant
-            alpha.setFillAfter(true); // Tell it to persist after the animation ends
-            iv.startAnimation(alpha);
-        }else
-            iv.setAlpha(.5f);
+
+        if(getIntent().getExtras()!=null &&
+                    getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
+            {
+            mLapseId = (UUID) getIntent().getExtras().getSerializable(EXTRA_LAPSE_ID);
+            File imgFile = new File(LapseGallery.get(getApplicationContext()).getLapse(mLapseId)
+                    .getLatest());
+            if(imgFile.exists()){
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                iv.setImageBitmap(myBitmap);
+                iv.setScaleType(ImageView.ScaleType.FIT_XY);
+
+            }
+
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
+                alpha.setDuration(0); // Make animation instant
+                alpha.setFillAfter(true); // Tell it to persist after the animation ends
+                iv.startAnimation(alpha);
+            } else
+                iv.setAlpha(.5f);
+        }
+
+        /*else{
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                AlphaAnimation alpha = new AlphaAnimation(0F, 0F);
+                alpha.setDuration(0); // Make animation instant
+                alpha.setFillAfter(true); // Tell it to persist after the animation ends
+                iv.startAnimation(alpha);
+            } else
+                iv.setAlpha(0f);
+        }*/
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
