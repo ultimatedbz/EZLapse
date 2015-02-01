@@ -47,4 +47,5 @@ public class Lapse {
     public void add(Photo photo){
         mPhotos.add(photo);
     }
+
 }

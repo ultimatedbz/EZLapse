@@ -60,7 +60,7 @@ public class FullscreenCamera extends ActionBarActivity {
             String filePath = "";
             boolean success = true;
             try{
-                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp";
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp/";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
                 filePath = directory + filename;
@@ -95,20 +95,49 @@ public class FullscreenCamera extends ActionBarActivity {
 
             //for now, we are just directly setting title
             if(success) {
-                Log.v(TAG, "success");
-                /*Create AlertDialog that writes into tempTitle*/
-                /* picture is saved, do something with it, ask for title etc*/
-                openDialogBox();
-                //assume DialogBox got the title
-                //remove picture from EZLapse/tmp and place it in EZLapse/$tempTitle
+                String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
+                if (firstPic){
+                    Log.v(TAG, "success");
+                    /*Create AlertDialog that writes into tempTitle*/
+                    /* picture is saved, do something with it, ask for title etc*/
+                    openDialogBox();
+                    //assume DialogBox got the title
 
-                Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
-                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                    //create new Lapse directory
+                    //assume for now that they always put a valid title
+                    tempTitle = "test";
 
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(EXTRA_PASS, true);
 
-                setResult(Activity.RESULT_OK, returnIntent);
+                    Log.v(TAG, EZdirectory);
+                    File LapseDir = new File(EZdirectory + tempTitle + "/");
+                    Log.v(TAG, LapseDir.getPath());
+                    LapseDir.mkdirs();
+
+                    //move file from /tmp to directory
+                    Log.v(TAG, filePath);
+                    File to = new File(EZdirectory + tempTitle + "/", tempTitle + "-Photo1.jpg");
+                    File from = new File(filePath);
+                    from.renameTo(to);
+
+                    Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
+                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(EXTRA_PASS, true);
+
+                    setResult(Activity.RESULT_OK, returnIntent);
+                }
+                else {
+                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+                    String title = currentLapse.getTitle();
+                    int size = currentLapse.getPhotoNum();
+
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                    File from = new File(filePath);
+                    from.renameTo(to);
+                                       
+                    currentLapse.add(new Photo(to.getPath(), new Date()));
+                }
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
