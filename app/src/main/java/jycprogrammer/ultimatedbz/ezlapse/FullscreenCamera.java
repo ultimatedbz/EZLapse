@@ -21,6 +21,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -43,7 +44,7 @@ public class FullscreenCamera extends ActionBarActivity {
     private View mProgressContainer;
     private Camera mCamera;
     private SurfaceView mSurfaceView;
-    private String tempTitle;
+    private final String tempTitle = "";
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
@@ -56,15 +57,14 @@ public class FullscreenCamera extends ActionBarActivity {
         public void onPictureTaken(byte[] data, Camera camera){
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
-            String filePath = "";
+            final StringBuilder filePath = new StringBuilder("");
             boolean success = true;
             try{
                 String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
-                filePath = directory + filename;
+                filePath.append(directory + filename);
                 os.write(data);
-
 
             }catch (Exception e){
                 Log.e(TAG, "Error writing to file " + filename, e);
@@ -97,46 +97,148 @@ public class FullscreenCamera extends ActionBarActivity {
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
-                openDialogBox();
-                Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
-                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                //openDialogBox(user_input);
 
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(EXTRA_PASS, true);
+                //final Intent returnIntent = new Intent();
+                //returnIntent.putExtra(EXTRA_PASS, true);
 
-                setResult(Activity.RESULT_OK, returnIntent);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
+                final EditText textbox = new EditText(FullscreenCamera.this);
+                alertDialogBuilder.setTitle("Add a title to your EZLapse")
+                        .setView(textbox)
+                        .setCancelable(true);
+                alertDialogBuilder.setPositiveButton(R.string.confirm,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int arg1) {
+                                Log.v(TAG, "positive button clicked");
+                                tempTitle.concat(textbox.getText().toString());
+                                Log.v("TESTING STRING", tempTitle);
+                                Lapse newLapse = new Lapse(textbox.getText().toString(), new Date(), filePath.toString());
+                                LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                                dialog.dismiss();
+                                Intent returnIntent = new Intent();
+                                returnIntent.putExtra(EXTRA_PASS, true);
+                                setResult(Activity.RESULT_OK, returnIntent);
+                                finish();
+                            }
+                        });
+                alertDialogBuilder.setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Intent returnIntent = new Intent();
+                                returnIntent.putExtra(EXTRA_PASS, true);
+                                setResult(RESULT_CANCELED, returnIntent);
+                                finish();
+                            }
+                        });
+                alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra(EXTRA_PASS, true);
+                        setResult(RESULT_CANCELED, returnIntent);
+                        finish();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+                //Lapse newLapse = new Lapse(tempTitle, new Date(), filePath.toString());
+                //LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+                //setResult(Activity.RESULT_OK, returnIntent);
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
+                finish();
             }
-            finish();
+            //finish();
         }
     };
 
-    private void openDialogBox(){
+    private void openDialogBox(final StringBuilder s){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle("Add a title to your EZLapse");
+        final EditText textbox = new EditText(this);
+        alertDialogBuilder.setTitle("Add a title to your EZLapse")
+                          .setView(textbox)
+                          .setCancelable(true);
         alertDialogBuilder.setPositiveButton(R.string.confirm,
                 new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int arg1) {
                         Log.v(TAG, "positive button clicked");
+                        s.append(textbox.getText().toString());
                         dialog.dismiss();
                     }
                 });
         alertDialogBuilder.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        s.append("\0");
                         dialog.dismiss();
                     }
                 });
-
+        alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                s.append("\0");
+            }
+        });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
 
+    private class TitleDialog {
+        private final String input = "";
+        private AlertDialog theDialog;
+        public TitleDialog()
+        {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
+            final EditText textbox = new EditText(FullscreenCamera.this);
+            alertDialogBuilder.setTitle("Add a title to your EZLapse")
+                    //  .setView(textbox)
+                    .setMessage("Lapse Title")
+                    .setCancelable(true);
+            alertDialogBuilder.setPositiveButton(R.string.confirm,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            Log.v(TAG, "positive button clicked");
+                            input.concat(textbox.getText().toString());
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialogBuilder.setNegativeButton(R.string.cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            input.concat("\0");
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    input.concat("\0");
+                }
+            });
+            theDialog = alertDialogBuilder.create();
+        }
+        public void start()
+        {
+            if(!theDialog.isShowing())
+                theDialog.show();
+        }
+        public String toString()
+        {
+            return input;
+        }
+        public boolean isShowing()
+        {
+            return theDialog.isShowing();
+        }
     }
     @Override
     @SuppressWarnings("deprecation")
@@ -146,7 +248,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
 
         mCamera = null;
-        tempTitle = "";
 
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);

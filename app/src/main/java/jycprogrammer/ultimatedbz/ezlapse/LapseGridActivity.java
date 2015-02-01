@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -79,11 +78,6 @@ public class LapseGridActivity extends ActionBarActivity {
         return super.onSearchRequested();
     }
 
-   /* @Override
-    public void startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData, boolean globalSearch) {
-
-    }
-*/
     @Override
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -94,6 +88,8 @@ public class LapseGridActivity extends ActionBarActivity {
             updateView(stuff);
         }
     }
+
+
 
     private ArrayList<Lapse> doSearch(String query)
     {
@@ -126,7 +122,7 @@ public class LapseGridActivity extends ActionBarActivity {
 
             if(imgFile.exists()){
                 Log.v(TAG, "IMAGE FILE EXISTS!");
-                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 150,150);
+                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
                 //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 Log.v(TAG, "Bitmap created");
                 ImageView picture = (ImageView) convertView.
@@ -201,19 +197,20 @@ public class LapseGridActivity extends ActionBarActivity {
         Log.v(TAG, "onActivityResult");
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
-            //if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false))
                 updateView();
         }
     }
     private void updateView(ArrayList<Lapse> terms){
         if(terms.size() > 0)
         {
-            LapseAdapter search_results = new LapseAdapter(terms);
+            /*LapseAdapter search_results = new LapseAdapter(terms);
             LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
-            LapseAdapter temp = new LapseAdapter(mLapseGallery);
-            all_pics = search_results;
+            LapseAdapter temp = new LapseAdapter(mLapseGallery);*/
+            ArrayList<Lapse> temp = mLapseGallery;
+            mLapseGallery = terms;
             updateView();
-            all_pics = temp;
+            mLapseGallery = temp;
         }
         else
         {
