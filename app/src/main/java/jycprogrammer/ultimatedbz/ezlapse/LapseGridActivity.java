@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import jycprogrammer.ultimatedbz.ezlapse.util.SearchableActivity;
 
@@ -34,11 +36,34 @@ public class LapseGridActivity extends ActionBarActivity {
     private LapseAdapter adapt;
     private GridView the_grid;
 
+    public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Parse files in EZLapse to recreate all Lapses
+        //create empty Lapse Gallery
+        super.onCreate(savedInstanceState);
         adapt = null;
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-        super.onCreate(savedInstanceState);
+
+        //probably gotta do null checks for new peeps, do that later
+        File f = new File(EZdirectory);
+        File[] files = f.listFiles();
+        for (File inFile : files)
+            if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+                //for every picture in subdirectory, put into Lapse
+                File[] subFiles = inFile.listFiles();
+                Lapse l = new Lapse(inFile.getName());
+                for (File subFile : subFiles) {
+                    String absolutePath = subFile.getAbsolutePath();
+                    Photo photo = new Photo(absolutePath, new Date());
+                    l.add(photo);
+                }
+                if (l.getPhotoNum() > 0) {
+                    mLapseGallery.add(l);
+                }
+            }
+
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
