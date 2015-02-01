@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -21,8 +22,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -32,26 +35,26 @@
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_camera"
             android:parentActivityName=".LapseGridActivity"
-            android:theme="@style/FullscreenTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="jycprogrammer.ultimatedbz.ezlapse.LapseGridActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" >
+            android:name=".PhotoGridActivity"
+            android:label="@string/title_activity_photogrid"
+            android:parentActivityName=".LapseGridActivity"
+            android:theme="@style/FullscreenTheme" >
         </activity>
-        <!--<activity
-            android:name=".util.SearchableActivity"
-            android:label="@string/title_activity_searchable"
-            android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
-        </activity>-->
+        <activity
+            android:name=".PhotoSlideshowActivity"
+            android:label="@string/title_activity_photo_slideshow"
+            android:parentActivityName=".LapseGridActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="jycprogrammer.ultimatedbz.ezlapse.LapseGridActivity" />
+        </activity>
     </application>
 
 </manifest>

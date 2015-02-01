@@ -10,6 +10,7 @@ import java.util.UUID;
  */
 public class LapseGallery {
     private static LapseGallery sLapseGallery;
+
     private ArrayList<Lapse> mLapses;
     private Context mAppContext;
 

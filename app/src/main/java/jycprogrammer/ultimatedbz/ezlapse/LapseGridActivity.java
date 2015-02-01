@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,15 +44,18 @@ public class LapseGridActivity extends ActionBarActivity {
         //create empty Lapse Gallery
         super.onCreate(savedInstanceState);
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-        Log.d("ON CREATE", "mLapseGallery has: " + mLapseGallery.size());
         //probably gotta do null checks for new peeps, do that later
+
         File f = new File(EZdirectory);
         File[] files = f.listFiles();
         if(files != null && files.length > 0 && mLapseGallery.size() == 0)
         for (File inFile : files)
+
             if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+
                 //for every picture in subdirectory, put into Lapse
                 File[] subFiles = inFile.listFiles();
+
                 Lapse l = new Lapse(inFile.getName());
                 for (File subFile : subFiles) {
                     String absolutePath = subFile.getAbsolutePath();
@@ -62,6 +66,7 @@ public class LapseGridActivity extends ActionBarActivity {
                     mLapseGallery.add(l);
                 }
             }
+
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
@@ -86,9 +91,6 @@ public class LapseGridActivity extends ActionBarActivity {
             case R.id.action_search:
                 onSearchRequested();
                 return true;
-            case R.id.action_settings:
-                openSettings();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -110,25 +112,6 @@ public class LapseGridActivity extends ActionBarActivity {
             updateView(stuff);
         }
     }
-
-  /*  private ArrayList<Lapse> backup = null;
-
-    @Override
-    protected void onStop() {
-        backup = new ArrayList<Lapse>();
-        backup.addAll(mLapseGallery);
-        Log.v("onStop", "onStop: backup has " + backup.size() + " Lapses and mLapseGallery has " + mLapseGallery.size() + " Lapses.");
-        super.onStop();
-    }
-
-
-    @Override
-    protected void onStart() {
-        if(backup != null) {
-            Log.v("onStart", "onStart: backup has " + backup.size() + " Lapses and mLapseGallery has" + mLapseGallery.size() + " Lapses.");
-        }
-        super.onStart();
-    }*/
 
     private ArrayList<Lapse> doSearch(String query)
     {
@@ -178,10 +161,7 @@ public class LapseGridActivity extends ActionBarActivity {
     }
 
 
-    private void openSettings(){
-        Intent i = new Intent(LapseGridActivity.this, SettingsActivity.class);
-        startActivity(i);
-    }
+
 
     private void updateView(){
         Log.v(TAG, "view updated, size of gallery is: " + mLapseGallery.size());
@@ -199,7 +179,9 @@ public class LapseGridActivity extends ActionBarActivity {
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        //view every thing in lapse
+                        Intent i = new Intent(LapseGridActivity.this, PhotoSlideshowActivity.class);
+                        i.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
+                        startActivityForResult(i, REQUEST_PHOTO);
                     }
                 });
 
@@ -242,9 +224,6 @@ public class LapseGridActivity extends ActionBarActivity {
     private void updateView(ArrayList<Lapse> terms){
         if(terms.size() > 0)
         {
-            /*LapseAdapter search_results = new LapseAdapter(terms);
-            LapseAdapter all_pics = (LapseAdapter) the_grid.getAdapter();
-            LapseAdapter temp = new LapseAdapter(mLapseGallery);*/
             ArrayList<Lapse> temp = mLapseGallery;
             mLapseGallery = terms;
             updateView();

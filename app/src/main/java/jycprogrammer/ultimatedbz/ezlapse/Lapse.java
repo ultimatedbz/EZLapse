@@ -36,6 +36,10 @@ public class Lapse {
         return mId;
     }
 
+    public ArrayList<Photo> getPhotos(){
+        return mPhotos;
+    }
+
     public int getPhotoNum(){
         return mPhotos.size();
     }

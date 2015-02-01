@@ -16,4 +16,7 @@
     <string name="search_hint">Search for an EZLapse</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="title_activity_photogrid"></string>
+    <string name="title_activity_photo_slideshow">PhotoSlideshowActivity</string>
+
 </resources>
