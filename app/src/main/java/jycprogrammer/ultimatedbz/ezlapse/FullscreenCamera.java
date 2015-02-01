@@ -20,12 +20,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -205,25 +203,10 @@ public class FullscreenCamera extends ActionBarActivity {
                 iv.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }
-
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0.7F, 0.7F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
                 iv.setAlpha(.5f);
         }
 
-        /*else{
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                AlphaAnimation alpha = new AlphaAnimation(0F, 0F);
-                alpha.setDuration(0); // Make animation instant
-                alpha.setFillAfter(true); // Tell it to persist after the animation ends
-                iv.startAnimation(alpha);
-            } else
-                iv.setAlpha(0f);
-        }*/
+
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
