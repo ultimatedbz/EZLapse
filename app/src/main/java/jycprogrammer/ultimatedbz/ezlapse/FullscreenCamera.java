@@ -21,6 +21,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -59,7 +60,7 @@ public class FullscreenCamera extends ActionBarActivity {
             String filePath = "";
             boolean success = true;
             try{
-                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/";
+                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp";
                 new File(directory).mkdirs();
                 os = new FileOutputStream(directory + filename);
                 filePath = directory + filename;
@@ -98,6 +99,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
                 openDialogBox();
+                //assume DialogBox got the title
+                //remove picture from EZLapse/tmp and place it in EZLapse/$tempTitle
+
                 Lapse newLapse = new Lapse(tempTitle, new Date(), filePath);
                 LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
 
@@ -116,12 +120,14 @@ public class FullscreenCamera extends ActionBarActivity {
     private void openDialogBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle("Add a title to your EZLapse");
+
+        final EditText input = new EditText(getApplicationContext());
         alertDialogBuilder.setPositiveButton(R.string.confirm,
                 new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int arg1) {
                         Log.v(TAG, "positive button clicked");
+
                         dialog.dismiss();
                     }
                 });
@@ -136,8 +142,8 @@ public class FullscreenCamera extends ActionBarActivity {
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
-
     }
+
     @Override
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
