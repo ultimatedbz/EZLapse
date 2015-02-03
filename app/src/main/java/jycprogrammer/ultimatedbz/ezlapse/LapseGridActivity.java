@@ -222,6 +222,17 @@ public class LapseGridActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if(results)
+        {
+            results = false;
+            updateView();
+        }
+        else
+            super.onBackPressed();
+    }
+
     public void onActivityResult( int requestCode, int resultCode, Intent data){
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
@@ -242,6 +253,7 @@ public class LapseGridActivity extends ActionBarActivity {
         {
             setContentView(R.layout.activity_lapse_grid);
         }
+        results = true;
     }
     private Bitmap get_from_file(String filepath, int width, int height)
     {
