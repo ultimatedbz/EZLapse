@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,76 +28,83 @@ import java.util.Date;
 
 public class LapseGridActivity extends ActionBarActivity {
 
-    private static String TAG = "lapse_grid_activity";
-    private static final int REQUEST_PHOTO = 0;
+  private static String TAG = "lapse_grid_activity";
+  private static final int REQUEST_PHOTO = 0;
 
-    private Button create_lapse_button;
-    public ArrayList<Lapse> mLapseGallery;
-    private LapseAdapter adapt;
-    private GridView the_grid;
-    private boolean results = false;
+  private Button create_lapse_button;
+  public ArrayList<Lapse> mLapseGallery;
+  private GridView the_grid;
+  private boolean results = false;
 
-    public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
+  public static final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
-    @Override
+  @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate");
-        //Parse files in EZLapse to recreate all Lapses
-        //create empty Lapse Gallery
-        super.onCreate(savedInstanceState);
-        mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
-        //probably gotta do null checks for new peeps, do that later
+      Log.v(TAG, "onCreate");
+      //Parse files in EZLapse to recreate all Lapses
+      //create empty Lapse Gallery
+      super.onCreate(savedInstanceState);
+      mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
+      //probably gotta do null checks for new peeps, do that later
 
-        File f = new File(EZdirectory);
-        File[] files = f.listFiles();
-        if(files != null && files.length > 0 && mLapseGallery.size() == 0)
+      File f = new File(EZdirectory);
+      File[] files = f.listFiles();
+      if(files != null && files.length > 0 && mLapseGallery.size() == 0)
         for (File inFile : files)
+          if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+            //for every picture in subdirectory, put into Lapse
+            File[] subFiles = inFile.listFiles();
 
-            if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
-
-                //for every picture in subdirectory, put into Lapse
-                File[] subFiles = inFile.listFiles();
-
-                Lapse l = new Lapse(inFile.getName());
-                for (File subFile : subFiles) {
-                    String absolutePath = subFile.getAbsolutePath();
-                    Photo photo = new Photo(absolutePath, new Date());
-                    l.add(photo);
-                }
-                Log.v(TAG,"67");
-                if (l.getPhotoNum() > 0) {
-                    Log.v(TAG,"69");
-                    LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
-                }
+            Lapse l = new Lapse(inFile.getName());
+            for (File subFile : subFiles) {
+              String absolutePath = subFile.getAbsolutePath();
+              Photo photo = new Photo(absolutePath, new Date());
+              l.add(photo);
             }
+            if (l.getPhotoNum() > 0) {
+                LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
+            }
+          }
 
         updateView();
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-    }
+      }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_lapse_grid, menu);
-        return true;
+      // Inflate the menu; this adds items to the action bar if it is present.
+      getMenuInflater().inflate(R.menu.menu_lapse_grid, menu);
+      return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch(item.getItemId()){
-            case R.id.action_new:
-                Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
-                startActivityForResult(i, REQUEST_PHOTO);
-                return true;
-            case R.id.action_search:
-                onSearchRequested();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+      // Handle action bar item clicks here. The action bar will
+      // automatically handle clicks on the Home/Up button, so long
+      // as you specify a parent activity in AndroidManifest.xml.
+      switch(item.getItemId()){
+        case R.id.action_new:
+          Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
+          startActivityForResult(i, REQUEST_PHOTO);
+          return true;
+        case R.id.action_search:
+          onSearchRequested();
+          return true;
+        case R.id.action_delete:
+           Toast.makeText(getApplicationContext(), "Delete not implemented yet, coming out soon",
+               Toast.LENGTH_SHORT).show();
+          return true;
+        case R.id.action_settings:
+          Toast.makeText(getApplicationContext(), "Settings not implemented yet, too bad",
+              Toast.LENGTH_SHORT).show();
+          return true;
+        case R.id.action_help:
+          Toast.makeText(getApplicationContext(), "Help not implemented yet, you're on your own",
+              Toast.LENGTH_SHORT).show();
+          return true;
+        default:
+          return super.onOptionsItemSelected(item);
+      }
     }
 
     @Override
@@ -179,9 +187,9 @@ public class LapseGridActivity extends ActionBarActivity {
             else {
                 Log.v(TAG, "else statement");
                 the_grid.setAdapter(new LapseAdapter(mLapseGallery));
-                the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
@@ -190,18 +198,18 @@ public class LapseGridActivity extends ActionBarActivity {
                        /* Intent i = new Intent(LapseGridActivity.this, PhotoSlideshowActivity.class);
                         i.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);*/
+                        return true;
                     }
                 });
 
-                the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         //add to lapse
                         Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                         Log.v(TAG, "204: " + Integer.toString(mLapseGallery.size()));
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
-                        return true;
                     }
                 });
             }

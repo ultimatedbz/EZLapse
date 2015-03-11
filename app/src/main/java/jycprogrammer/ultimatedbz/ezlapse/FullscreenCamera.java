@@ -297,11 +297,8 @@ public class FullscreenCamera extends ActionBarActivity {
                     return;
 
                 Camera.Parameters parameters = mCamera.getParameters();
+                //mCamera.setDisplayOrientation(90);
 
-                /*int mRotation = 90;
-                parameters.setRotation(mRotation); */
-
-                mCamera.setParameters(parameters);
                 try{
                     mCamera.setPreviewDisplay(holder);
                     mCamera.startPreview();

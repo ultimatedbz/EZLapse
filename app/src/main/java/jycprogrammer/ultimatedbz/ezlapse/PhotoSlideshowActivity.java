@@ -37,7 +37,7 @@ public class PhotoSlideshowActivity extends ActionBarActivity {
         anim = new AnimationDrawable();
         anim.setOneShot(false);
         for (Photo p : mPhotoGallery) {
-            anim.addFrame(Drawable.createFromPath(p.getFilePath()), 500);
+            anim.addFrame(Drawable.createFromPath(p.getFilePath()), 250);
         }
 
         image = (ImageView) findViewById(R.id.imageView1);
