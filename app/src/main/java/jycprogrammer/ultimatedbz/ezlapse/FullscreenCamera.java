@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -296,8 +297,17 @@ public class FullscreenCamera extends ActionBarActivity {
                 if (mCamera == null)
                     return;
 
-                Camera.Parameters parameters = mCamera.getParameters();
-                //mCamera.setDisplayOrientation(90);
+                /* Need to find better way of fixing camera orientation */
+              mCamera.setDisplayOrientation(90);
+
+              Camera.Parameters p = mCamera.getParameters();
+
+              p.set("jpeg-quality", 100);
+              p.set("orientation", "landscape");
+              p.set("rotation", 90);
+              p.setPictureFormat(PixelFormat.JPEG);
+              //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
+              mCamera.setParameters(p);
 
                 try{
                     mCamera.setPreviewDisplay(holder);
