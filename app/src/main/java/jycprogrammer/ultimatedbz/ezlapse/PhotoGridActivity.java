@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,8 +32,9 @@ public class PhotoGridActivity extends ActionBarActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
+Log.v("tracker","1");
         super.onCreate(savedInstanceState);
+        Log.v("tracker","2");
         if(getIntent().getExtras()!=null &&
                 getIntent().getExtras().containsKey(EXTRA_LAPSE_ID)){
 
@@ -42,6 +44,7 @@ public class PhotoGridActivity extends ActionBarActivity{
         }else{
             finish();
         }
+        Log.v("tracker","3");
         setContentView(R.layout.activity_photo_grid);
         mGrid = (GridView) findViewById(R.id.photo_grid);
         PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
@@ -52,6 +55,7 @@ public class PhotoGridActivity extends ActionBarActivity{
 
             }
         });
+        Log.v("tracker","4");
     }
 
 
@@ -60,6 +64,7 @@ public class PhotoGridActivity extends ActionBarActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_photo_grid, menu);
+        Log.v("tracker","5");
         return true;
     }
 
