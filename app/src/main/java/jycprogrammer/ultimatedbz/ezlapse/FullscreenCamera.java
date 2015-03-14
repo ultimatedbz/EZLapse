@@ -201,71 +201,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
         ImageButton changeCamera = (ImageButton) v.findViewById(R.id.change_camera);
         changeCamera.setVisibility(View.INVISIBLE);
-/*        changeCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (inPreview) {
-                    mCamera.stopPreview();
-                }
-//NB: if you don't release the current camera before switching, you app will crash
-                mCamera.release();
-//swap the id of the camera to be used
-                if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
-                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-                }
-                else {
-                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-                }
-                mCamera = Camera.open(currentCameraId);
-
-                SurfaceHolder holder = mSurfaceView.getHolder();
-                holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-                holder.addCallback(new SurfaceHolder.Callback() {
-                    @Override
-                    public void surfaceCreated(SurfaceHolder holder) {
-                        try{
-                            if(mCamera != null){
-                                mCamera.setPreviewDisplay(holder);
-                            }
-                        }catch (IOException exception){
-                            Log.e(TAG, "Error setting up preview display", exception);
-                        }
-                    }
-
-                    @Override
-                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                        if (mCamera == null)
-                            return;
-
-                        Camera.Parameters parameters = mCamera.getParameters();
-
-                *int mRotation = 90;
-                parameters.setRotation(mRotation); *
-
-                        mCamera.setParameters(parameters);
-                        try{
-                            mCamera.setPreviewDisplay(holder);
-                            mCamera.startPreview();
-                            inPreview = true;
-                        }catch(Exception e){
-                            Log.e(TAG, "Could not start preview", e);
-                            mCamera.release();
-                            mCamera = null;
-                        }
-                    }
-
-                    @Override
-                    public void surfaceDestroyed(SurfaceHolder holder) {
-                        if( mCamera != null){
-                            mCamera.stopPreview();
-                            inPreview = false;
-                        }
-                    }
-                });
-
-            }
-        });*/
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -308,6 +243,10 @@ public class FullscreenCamera extends ActionBarActivity {
               p.setPictureFormat(PixelFormat.JPEG);
               //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
               mCamera.setParameters(p);
+              /*In the future look at this http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
+              http://stackoverflow.com/questions/20064793/how-to-fix-camera-orientation
+              http://stackoverflow.com/questions/11026615/captured-photo-orientation-is-changing-in-android/
+              http://stackoverflow.com/questions/4645960/how-to-set-android-camera-orientation-properly  */
 
                 try{
                     mCamera.setPreviewDisplay(holder);
