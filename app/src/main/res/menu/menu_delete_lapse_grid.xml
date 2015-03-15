@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".LapseGridActivity">
+    <!-- Search, should appear as action button -->
+
+    <item android:id="@+id/action_do_not_delete"
+          android:title="trash_action"
+          android:orderInCategory="1"
+          app:showAsAction="always"
+          android:icon="@drawable/evil_totoro"
+          />
+</menu>
