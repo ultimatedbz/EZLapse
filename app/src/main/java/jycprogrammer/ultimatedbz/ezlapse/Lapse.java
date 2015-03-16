@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
 
@@ -66,6 +67,7 @@ public class Lapse {
     public void deletePhoto(int i){
 
     }
+
     public static boolean deleteDirectory(File path) {
         if( path.exists() ) {
             File[] files = path.listFiles();

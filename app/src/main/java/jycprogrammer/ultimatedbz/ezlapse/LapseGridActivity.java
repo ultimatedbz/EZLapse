@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 
@@ -212,7 +214,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         public void onClick(DialogInterface dialog, int which) {
                             removeLapses(checked);
                             updateView();
-                            finish();
+                            //finish();
                         }
                     });
                     if (getCheckedItemCount() > 1)
@@ -285,10 +287,18 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     }
 
+    public class CustomComparator implements Comparator<Lapse> {
+        @Override
+        public int compare(Lapse o1, Lapse o2) {
+            return o1.getTitle().compareTo(o2.getTitle());
+        }
+    }
+
     private void updateView(){
         if(mCurrentList.size() > 0) {
             setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_lapses_grid);
             the_grid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
+            Collections.sort(mCurrentList, new CustomComparator());
             if(the_grid.getAdapter() != null) {
                 Log.v(TAG,"Invalidating views");
                 the_grid.invalidateViews();
@@ -320,7 +330,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         }
                     });
                 }
-        }else if(mCurrentList != mLapseGallery) {
+        }else if(mCurrentList.size() != mLapseGallery.size()) {
             onBackPressed();
         }else{
             setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_no_lapses);

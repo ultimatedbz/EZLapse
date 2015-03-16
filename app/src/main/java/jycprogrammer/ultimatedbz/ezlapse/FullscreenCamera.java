@@ -232,13 +232,22 @@ public class FullscreenCamera extends ActionBarActivity {
                 if (mCamera == null)
                     return;
 
+                int cameraIndex = 1;
+                Camera.CameraInfo camInfo = new Camera.CameraInfo();
+                Camera.getCameraInfo(cameraIndex, camInfo);
+                int cameraRotationOffset = camInfo.orientation;
+                int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+
+Log.v("tracker", "" + cameraRotationOffset);
                 /* Need to find better way of fixing camera orientation */
-              mCamera.setDisplayOrientation(90);
+              if(cameraRotationOffset == 270)
+                mCamera.setDisplayOrientation(90);
 
               Camera.Parameters p = mCamera.getParameters();
 
               p.set("jpeg-quality", 100);
-              p.set("orientation", "landscape");
+              //p.set("orientation", "landscape");
               p.set("rotation", 90);
               p.setPictureFormat(PixelFormat.JPEG);
               //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
