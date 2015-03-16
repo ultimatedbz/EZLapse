@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,9 +31,7 @@ public class PhotoGridActivity extends ActionBarActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-Log.v("tracker","1");
         super.onCreate(savedInstanceState);
-        Log.v("tracker","2");
         if(getIntent().getExtras()!=null &&
                 getIntent().getExtras().containsKey(EXTRA_LAPSE_ID)){
 
@@ -44,9 +41,8 @@ Log.v("tracker","1");
         }else{
             finish();
         }
-        Log.v("tracker","3");
-        setContentView(R.layout.activity_photo_grid);
-        mGrid = (GridView) findViewById(R.id.photo_grid);
+        setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_photo_grid);
+        mGrid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.photo_grid);
         PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
         mGrid.setAdapter(adapter);
         mGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -55,7 +51,6 @@ Log.v("tracker","1");
 
             }
         });
-        Log.v("tracker","4");
     }
 
 
@@ -63,15 +58,14 @@ Log.v("tracker","1");
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_photo_grid, menu);
-        Log.v("tracker","5");
+        getMenuInflater().inflate(jycprogrammer.ultimatedbz.ezlapse.R.menu.menu_photo_grid, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.show_slideshow:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.show_slideshow:
                 Intent in = new Intent(PhotoGridActivity.this, PhotoSlideshowActivity.class);
                 in.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseId);
                 startActivity(in);
@@ -80,6 +74,10 @@ Log.v("tracker","1");
         }
     }
 
+    private Bitmap get_from_file(String filepath, int width, int height)
+    {
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filepath), width, height, false);
+    }
 
     private class PhotoAdapter extends ArrayAdapter<Photo> {
         public PhotoAdapter(ArrayList<Photo> items){super(PhotoGridActivity.this, 0, items);}
@@ -88,13 +86,13 @@ Log.v("tracker","1");
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = PhotoGridActivity.this.getLayoutInflater()
-                        .inflate(R.layout.photo_icon_layout, parent, false);
+                        .inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.photo_icon_layout, parent, false);
 
             }
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
+            Bitmap myBitmap = get_from_file(getItem(position).getFilePath(), 175, 175);
             ImageView picture = (ImageView) convertView.
-                    findViewById(R.id.grid_item_image);
+                    findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
 
             final int p = position;
@@ -102,8 +100,8 @@ Log.v("tracker","1");
                 @Override
                 public void onClick(View v) {
 
-                    android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-                    ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
+            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+            ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
                 }
             });
 

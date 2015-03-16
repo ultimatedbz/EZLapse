@@ -4,7 +4,7 @@
       tools:context=".LapseGridActivity">
     <!-- Search, should appear as action button -->
 
-    <item android:id="@+id/action_do_not_delete"
+    <item android:id="@+id/action_do_delete"
           android:title="trash_action"
           android:orderInCategory="1"
           app:showAsAction="always"

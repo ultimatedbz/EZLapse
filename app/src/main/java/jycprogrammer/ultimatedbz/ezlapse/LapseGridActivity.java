@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 
 public class LapseGridActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
@@ -59,20 +60,20 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         File[] files = f.listFiles();
         if(files != null && files.length > 0 && mLapseGallery.size() == 0)
         for (File inFile : files)
-        if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
-            //for every picture in subdirectory, put into Lapse
-            File[] subFiles = inFile.listFiles();
+            if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+                //for every picture in subdirectory, put into Lapse
+                File[] subFiles = inFile.listFiles();
 
-            Lapse l = new Lapse(inFile.getName());
-            for (File subFile : subFiles) {
-                String absolutePath = subFile.getAbsolutePath();
-                Photo photo = new Photo(absolutePath, new Date());
-                l.add(photo);
+                Lapse l = new Lapse(inFile.getName());
+                for (File subFile : subFiles) {
+                    String absolutePath = subFile.getAbsolutePath();
+                    Photo photo = new Photo(absolutePath, new Date());
+                    l.add(photo);
+                }
+                if (l.getPhotoNum() > 0) {
+                    LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
+                }
             }
-            if (l.getPhotoNum() > 0) {
-                LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
-            }
-        }
 
         updateView();
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -87,7 +88,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
 
-        getMenuInflater().inflate(R.menu.menu_lapse_grid, menu);
+        getMenuInflater().inflate(jycprogrammer.ultimatedbz.ezlapse.R.menu.menu_lapse_grid, menu);
         return true;
     }
 
@@ -97,14 +98,14 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()){
-            case R.id.action_new:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                 startActivityForResult(i, REQUEST_PHOTO);
                 return true;
-            case R.id.action_search:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_search:
                 onSearchRequested();
                 return true;
-            case R.id.action_delete:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_delete:
                 supportInvalidateOptionsMenu();
 
                 deleteAdapter = new DeleteLapseAdapter(null, mCurrentList);
@@ -112,11 +113,11 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
                 deleteAdapter.setOnItemClickListener(this);
                 return true;
-            case R.id.action_settings:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_settings:
                 Toast.makeText(getApplicationContext(), "Settings not implemented yet, too bad",
                 Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.action_help:
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_help:
                 Toast.makeText(getApplicationContext(), "Help not implemented yet, you're on your own",
                 Toast.LENGTH_SHORT).show();
 
@@ -156,6 +157,16 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         return ret;
     }
 
+    private void removeLapses(Set<Long> checked) {
+        ArrayList<Lapse> temp = new ArrayList<Lapse>();
+        for (Long it : checked)
+            temp.add(mCurrentList.get(it.intValue()));
+        for (Lapse it : temp) {
+            Log.v("tracker","should only run once");
+            it.deleteLapse();
+            mLapseGallery.remove(it);
+        }
+    }
 
     private class DeleteLapseAdapter extends MultiChoiceBaseAdapter {
         private ArrayList<Lapse> lapses;
@@ -168,7 +179,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.menu_delete_lapse_grid, menu);
+            inflater.inflate(jycprogrammer.ultimatedbz.ezlapse.R.menu.menu_delete_lapse_grid, menu);
             return true;
         }
 
@@ -181,10 +192,15 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            /* if (item.getItemId() == R.id.menu_share) {
-            Toast.makeText(getContext(), "Share", Toast.LENGTH_SHORT).show();
-            return true;
-            }*/
+            if (item.getItemId() == R.id.action_do_delete) {
+                Set<Long> checked = getCheckedItems();
+                if (!checked.isEmpty()) {
+                    //TODO ask are you sure?!?!
+                    removeLapses(checked);
+                }
+                finishActionMode();
+                return true;
+            }
             return false;
         }
 
@@ -193,8 +209,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             return false;
         }
 
+
         @Override
-            public int getCount() {
+        public int getCount() {
             return lapses.size();
         }
 
@@ -212,37 +229,37 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             protected View getViewImpl(int position, View convertView, ViewGroup parent) {
             if(convertView == null) {
                 convertView = LapseGridActivity.this.getLayoutInflater().
-                inflate(R.layout.delete_lapse_icon_layout, parent, false);
+                inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.delete_lapse_icon_layout, parent, false);
             }
 
-        //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
-        //and/or the activity_there_are_lapses_grid_lapses_grid.xml file
+            //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
+            //and/or the activity_there_are_lapses_grid_lapses_grid.xml file
 
 
-        /* Displays latest picture*/
-        File imgFile = new  File(getItem(position).getLatest());
+            /* Displays latest picture*/
+            File imgFile = new  File(getItem(position).getLatest());
 
-        if(imgFile.exists()){
-            Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
-            //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            ImageView picture = (ImageView) convertView.
-            findViewById(R.id.grid_item_image);
-            picture.setImageBitmap(myBitmap); //might be too big
-            TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
-            text.setText(getItem(position).getTitle());
+            if(imgFile.exists()){
+                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
+                //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                ImageView picture = (ImageView) convertView.
+                findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
+                picture.setImageBitmap(myBitmap); //might be too big
+                TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
+                text.setText(getItem(position).getTitle());
 
-        }
+            }
 
 
-        return convertView;
+            return convertView;
         }
 
     }
 
     private void updateView(){
         if(mCurrentList.size() > 0) {
-            setContentView(R.layout.activity_there_are_lapses_grid);
-            the_grid = (GridView) findViewById(R.id.main_grid);
+            setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_lapses_grid);
+            the_grid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
             if(the_grid.getAdapter() != null) {
                 Log.v(TAG,"Invalidating views");
                 the_grid.invalidateViews();
@@ -275,9 +292,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                     });
                 }
         }else {
-            setContentView(R.layout.activity_there_are_no_lapses);
+            setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_no_lapses);
             // Get EZLapse Button
-            create_lapse_button = (Button) findViewById(R.id.no_ez_button);
+            create_lapse_button = (Button) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.no_ez_button);
             create_lapse_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,12 +318,12 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             super.onBackPressed();
     }
 
-
-        @Override
-        protected void onSaveInstanceState(Bundle outState) {
-                deleteAdapter.save(outState);
-        }
-
+/*
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+            deleteAdapter.save(outState);
+    }
+*/
     public void onActivityResult( int requestCode, int resultCode, Intent data){
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
@@ -321,7 +338,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             mCurrentList = terms;
             updateView();
         }else{
-            setContentView(R.layout.no_search_results);
+            setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.no_search_results);
         }
         results = true;
         }
@@ -337,10 +354,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         }
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Log.v(TAG, "getView");
             if(convertView == null) {
                 convertView = LapseGridActivity.this.getLayoutInflater().
-                        inflate(R.layout.lapse_icon_layout, parent, false);
+                        inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.lapse_icon_layout, parent, false);
             }
 
             //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
@@ -354,9 +370,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
                 //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
-                        findViewById(R.id.grid_item_image);
+                        findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big
-                TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
+                TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
 
             }

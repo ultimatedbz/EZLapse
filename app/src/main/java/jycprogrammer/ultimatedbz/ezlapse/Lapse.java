@@ -2,6 +2,7 @@ package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -48,8 +49,6 @@ public class Lapse {
         mTitle = title;
     }
     public String getLatest(){
-        Log.v("asdf", mPhotos.get(mPhotos.size() - 1).getFilePath());
-        Log.v("asdf", Integer.toString(mPhotos.size()));
         return mPhotos.get(mPhotos.size() - 1).getFilePath();
 
     }
@@ -57,5 +56,31 @@ public class Lapse {
     public void add(Photo photo){
         mPhotos.add(photo);
     }
+    public void deleteLapse(){
+        File f = new File(mPhotos.get(0).getFilePath());
+        File parentFile = new File(f.getParentFile().getAbsolutePath());
+        Log.v("tracker", f.getParentFile().getAbsolutePath());
+        deleteDirectory(parentFile);
+    }
 
+    public void deletePhoto(int i){
+
+    }
+    public static boolean deleteDirectory(File path) {
+        if( path.exists() ) {
+            File[] files = path.listFiles();
+            if (files == null) {
+                return true;
+            }
+            for(int i=0; i<files.length; i++) {
+                if(files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                }
+                else {
+                    files[i].delete();
+                }
+            }
+        }
+        return( path.delete() );
+    }
 }
