@@ -41,14 +41,21 @@ public class PhotoGridActivity extends ActionBarActivity{
         }else{
             finish();
         }
-        setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_photo_grid);
-        mGrid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.photo_grid);
+        setContentView(R.layout.activity_photo_grid);
+        mGrid = (GridView) findViewById(R.id.photo_grid);
         PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
         mGrid.setAdapter(adapter);
         mGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+            }
+        });
+
+        mGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                return true;
             }
         });
     }
@@ -86,17 +93,17 @@ public class PhotoGridActivity extends ActionBarActivity{
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = PhotoGridActivity.this.getLayoutInflater()
-                        .inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.photo_icon_layout, parent, false);
+                        .inflate(R.layout.photo_icon_layout, parent, false);
 
             }
 
             Bitmap myBitmap = get_from_file(getItem(position).getFilePath(), 175, 175);
             ImageView picture = (ImageView) convertView.
-                    findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
+                    findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
 
             final int p = position;
-            picture.setOnClickListener(new View.OnClickListener() {
+           /* picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
@@ -105,7 +112,7 @@ public class PhotoGridActivity extends ActionBarActivity{
                 }
             });
 
-
+*/
             return convertView;
         }
     }

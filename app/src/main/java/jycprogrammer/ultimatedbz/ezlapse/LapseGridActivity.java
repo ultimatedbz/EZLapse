@@ -1,7 +1,10 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -108,7 +111,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_delete:
                 supportInvalidateOptionsMenu();
 
-                deleteAdapter = new DeleteLapseAdapter(null, mCurrentList);
+                deleteAdapter = new DeleteLapseAdapter(this, null, mCurrentList);
                 deleteAdapter.setAdapterView(the_grid);
 
                 deleteAdapter.setOnItemClickListener(this);
@@ -164,16 +167,24 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         for (Lapse it : temp) {
             Log.v("tracker","should only run once");
             it.deleteLapse();
+            mCurrentList.remove(it);
             mLapseGallery.remove(it);
         }
     }
 
     private class DeleteLapseAdapter extends MultiChoiceBaseAdapter {
         private ArrayList<Lapse> lapses;
+        private AlertDialog mDialog;
+        private AlertDialog.Builder mDialogBuilder;
 
-        public DeleteLapseAdapter(Bundle savedInstanceState, ArrayList<Lapse> items) {
+        public DeleteLapseAdapter(Context c, Bundle savedInstanceState, ArrayList<Lapse> items) {
             super(savedInstanceState);
             this.lapses = items;
+            mDialogBuilder =  new AlertDialog.Builder(c)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Delete")
+                    .setPositiveButton("Yes", null)
+                    .setNegativeButton("No", null);
         }
 
         @Override
@@ -193,10 +204,28 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             if (item.getItemId() == R.id.action_do_delete) {
-                Set<Long> checked = getCheckedItems();
+                final Set<Long> checked = getCheckedItems();
                 if (!checked.isEmpty()) {
                     //TODO ask are you sure?!?!
-                    removeLapses(checked);
+                    mDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            removeLapses(checked);
+                            updateView();
+                            finish();
+                        }
+                    });
+                    if (getCheckedItemCount() > 1)
+                        mDialogBuilder.setMessage("Are you sure you want to delete "
+                                + getCheckedItemCount() + " Lapses?");
+                    else
+                        mDialogBuilder.setMessage("Are you sure you want to delete "
+                                + getCheckedItemCount() + " Lapse?");
+
+                    mDialog = mDialogBuilder.create();
+                    mDialog.show();
+
+
                 }
                 finishActionMode();
                 return true;
@@ -291,7 +320,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         }
                     });
                 }
-        }else {
+        }else if(mCurrentList != mLapseGallery) {
+            onBackPressed();
+        }else{
             setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_no_lapses);
             // Get EZLapse Button
             create_lapse_button = (Button) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.no_ez_button);
