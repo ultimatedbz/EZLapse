@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 
 public class LapseGridActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
@@ -214,7 +215,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         public void onClick(DialogInterface dialog, int which) {
                             removeLapses(checked);
                             updateView();
-                            //finish();
                         }
                     });
                     if (getCheckedItemCount() > 1)
@@ -369,7 +369,12 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
             if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) {
-            updateView();
+                updateView();
+                Log.v("tracker","lapsegridavity");
+                Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
+                UUID id = (UUID) data.getExtras().getSerializable(FullscreenCamera.EXTRA_LAPSE_ID);
+                i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, id);
+                startActivityForResult(i, REQUEST_PHOTO);
             }
         }
     }

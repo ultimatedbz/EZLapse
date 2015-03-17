@@ -7,12 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,9 +53,82 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     };
     private boolean firstPic = true;
+    private boolean pictureTaken = false;
     private UUID mLapseId;
+    private ImageView mImageView;
+
+    private SurfaceHolder.Callback SHCallback= new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            try{
+                if(mCamera != null){
+                    mCamera.setPreviewDisplay(holder);
+                }
+            }catch (IOException exception){
+                Log.e(TAG, "Error setting up preview display", exception);
+            }
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            Log.v("tracker","surface changed");
+            if (mCamera == null)
+                return;
+
+            /* Geny motion front back both are 90
+            *  Actual Android phones front = 270, back = 90*/
+            int cameraIndex = currentCameraId;
+            Camera.CameraInfo camInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(1, camInfo);
+            int cameraRotationOffset = camInfo.orientation;
+
+
+            Log.v("tracker", "" + cameraRotationOffset);
+                /* Need to find better way of fixing camera orientation */
+            if( cameraRotationOffset == 270)
+                mCamera.setDisplayOrientation(90);
+
+            Camera.Parameters p = mCamera.getParameters();
+
+            p.set("jpeg-quality", 100);
+            //p.set("orientation", "landscape");
+
+            p.setPictureFormat(PixelFormat.JPEG);
+
+            if( cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                p.set("rotation", 270);
+            else
+                p.set("rotation",90);
+            mCamera.setParameters(p);
+              /*In the future look at this http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
+              http://stackoverflow.com/questions/20064793/how-to-fix-camera-orientation
+              http://stackoverflow.com/questions/11026615/captured-photo-orientation-is-changing-in-android/
+              http://stackoverflow.com/questions/4645960/how-to-set-android-camera-orientation-properly  */
+
+            try{
+                mCamera.setPreviewDisplay(holder);
+                mCamera.startPreview();
+                inPreview = true;
+            }catch(Exception e){
+                Log.e(TAG, "Could not start preview", e);
+                mCamera.release();
+                mCamera = null;
+            }
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            if( mCamera != null){
+                mCamera.stopPreview();
+                inPreview = false;
+            }
+        }
+    };
+
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
-        public void onPictureTaken(byte[] data, Camera camera){
+        public void onPictureTaken(byte[] data, Camera camera) {
+            if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                data = flip(data);
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
             final StringBuilder filePath = new StringBuilder("");
@@ -103,18 +179,32 @@ public class FullscreenCamera extends ActionBarActivity {
                                     String tempTitle = textbox.getText().toString();
                                     String LapseDirect = EZdirectory + tempTitle + "/";
                                     File LapseDir = new File(LapseDirect);
+                                    if (LapseDir.exists()) {
+                                        Toast toast = Toast.makeText(getApplicationContext(), "Lapse with file name " +
+                                                        tempTitle + " already exists ",
+                                                Toast.LENGTH_SHORT);
+                                        toast.show();
+                                        dialog.dismiss();
+                                        mCamera.startPreview();
+                                        inPreview = true;
+                                        return;
+                                    }
                                     LapseDir.mkdirs();
                                     File to = new File(LapseDirect, tempTitle + "-Photo1.jpg");
                                     File from = new File(filePath.toString());
                                     from.renameTo(to);
                                     Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
+                                    mLapseId = newLapse.getId();
                                     LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
-
                                     dialog.dismiss();
-                                    Intent returnIntent = new Intent();
-                                    returnIntent.putExtra(EXTRA_PASS, true);
-                                    setResult(Activity.RESULT_OK, returnIntent);
-                                    finish();
+
+                                    mCamera.startPreview();
+                                    inPreview = true;
+                                    pictureTaken = true;
+                                    firstPic = false;
+                                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+                                    mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                                    mImageView.setAlpha(.5f);
                                 }
                             });
                     alertDialogBuilder.setNegativeButton(R.string.cancel,
@@ -122,19 +212,16 @@ public class FullscreenCamera extends ActionBarActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
-                                    Intent returnIntent = new Intent();
-                                    returnIntent.putExtra(EXTRA_PASS, false);
-                                    setResult(RESULT_CANCELED, returnIntent);
-                                    finish();
+                                    mCamera.startPreview();
+                                    inPreview = true;
                                 }
                             });
                     alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            Intent returnIntent = new Intent();
-                            returnIntent.putExtra(EXTRA_PASS, true);
-                            setResult(RESULT_CANCELED, returnIntent);
-                            finish();
+                            dialog.dismiss();
+                            mCamera.startPreview();
+                            inPreview = true;
                         }
                     });
                     AlertDialog alertDialog = alertDialogBuilder.create();
@@ -148,10 +235,11 @@ public class FullscreenCamera extends ActionBarActivity {
                     File from = new File(filePath.toString());
                     from.renameTo(to);
                     currentLapse.add(new Photo(to.getPath(), new Date()));
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(EXTRA_PASS, true);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
+                    pictureTaken = true;
+                    mCamera.startPreview();
+                    inPreview = true;
+
+                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
                 }
             }else{
                 Intent returnIntent = new Intent();
@@ -171,15 +259,14 @@ public class FullscreenCamera extends ActionBarActivity {
 
         mCamera = null;
 
-        if(currentCameraId < 0)
-            currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-
+        currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+Log.v("tracker", "current camera id on create: " + currentCameraId );
         setContentView(R.layout.activity_fullscreen_camera);
         View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
 
         v.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
         v.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
-        ImageView iv = (ImageView) v.findViewById(R.id.opaque_image_view);
+        mImageView = (ImageView) v.findViewById(R.id.opaque_image_view);
 
         if(getIntent().getExtras()!=null &&
                     getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
@@ -192,15 +279,66 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                iv.setImageBitmap(myBitmap);
-                iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                mImageView.setImageBitmap(myBitmap);
+                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }
-                iv.setAlpha(.5f);
+                mImageView.setAlpha(.5f);
         }
 
         ImageButton changeCamera = (ImageButton) v.findViewById(R.id.change_camera);
-        changeCamera.setVisibility(View.INVISIBLE);
+        changeCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("tracker", "camera changed");
+                if (inPreview) {
+                    mCamera.stopPreview();
+                    inPreview = false;
+                }
+                //NB: if you don't release the current camera before switching, you app will crash
+                mCamera.release();
+
+                //swap the id of the camera to be used
+                if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                } else {
+                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+                }
+                mCamera = Camera.open(currentCameraId);
+
+                Camera.CameraInfo camInfo = new Camera.CameraInfo();
+                Camera.getCameraInfo(1, camInfo);
+                int cameraRotationOffset = camInfo.orientation;
+
+                Log.v("tracker", "" + cameraRotationOffset);
+                /* Need to find better way of fixing camera orientation */
+                if (cameraRotationOffset == 270)
+                    mCamera.setDisplayOrientation(90);
+
+                Camera.Parameters p = mCamera.getParameters();
+
+                p.set("jpeg-quality", 100);
+                //p.set("orientation", "landscape");
+                if (cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+                    p.set("rotation", 270);
+                else
+                    p.set("rotation", 90);
+                p.setPictureFormat(PixelFormat.JPEG);
+                //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
+                mCamera.setParameters(p);
+
+                //Code snippet for this method from somewhere on android developers, i forget where
+                //setCameraDisplayOrientation(FullscreenCamera.this, currentCameraId, mCamera);
+                try {
+                    //this step is critical or preview on new camera will no know where to render to
+                    mCamera.setPreviewDisplay(mSurfaceView.getHolder());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mCamera.startPreview();
+                inPreview = true;
+            }
+        });
 
         ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -215,67 +353,7 @@ public class FullscreenCamera extends ActionBarActivity {
         SurfaceHolder holder = mSurfaceView.getHolder();
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        holder.addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                try{
-                    if(mCamera != null){
-                        mCamera.setPreviewDisplay(holder);
-                    }
-                }catch (IOException exception){
-                    Log.e(TAG, "Error setting up preview display", exception);
-                }
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                if (mCamera == null)
-                    return;
-
-                int cameraIndex = 1;
-                Camera.CameraInfo camInfo = new Camera.CameraInfo();
-                Camera.getCameraInfo(cameraIndex, camInfo);
-                int cameraRotationOffset = camInfo.orientation;
-                int rotation = getWindowManager().getDefaultDisplay().getRotation();
-
-
-Log.v("tracker", "" + cameraRotationOffset);
-                /* Need to find better way of fixing camera orientation */
-              if(cameraRotationOffset == 270)
-                mCamera.setDisplayOrientation(90);
-
-              Camera.Parameters p = mCamera.getParameters();
-
-              p.set("jpeg-quality", 100);
-              //p.set("orientation", "landscape");
-              p.set("rotation", 90);
-              p.setPictureFormat(PixelFormat.JPEG);
-              //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
-              mCamera.setParameters(p);
-              /*In the future look at this http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
-              http://stackoverflow.com/questions/20064793/how-to-fix-camera-orientation
-              http://stackoverflow.com/questions/11026615/captured-photo-orientation-is-changing-in-android/
-              http://stackoverflow.com/questions/4645960/how-to-set-android-camera-orientation-properly  */
-
-                try{
-                    mCamera.setPreviewDisplay(holder);
-                    mCamera.startPreview();
-                    inPreview = true;
-                }catch(Exception e){
-                    Log.e(TAG, "Could not start preview", e);
-                    mCamera.release();
-                    mCamera = null;
-                }
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                if( mCamera != null){
-                    mCamera.stopPreview();
-                    inPreview = false;
-                }
-            }
-        });
+        holder.addCallback(SHCallback);
 
     }
 
@@ -338,7 +416,39 @@ Log.v("tracker", "" + cameraRotationOffset);
         return bestSize;
     }
 
+    @Override
+    public void onBackPressed() {
+        if(pictureTaken)
+        {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(EXTRA_PASS, true);
+            returnIntent.putExtra(EXTRA_LAPSE_ID, mLapseId);
+            setResult(Activity.RESULT_OK, returnIntent);
+        }
+        else{
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(EXTRA_PASS, false);
+            setResult(Activity.RESULT_OK, returnIntent);
+        }
+            super.onBackPressed();
+    }
 
+    public byte[] flip(byte[] d)
+    {
+        /* Make bitmap*/
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inMutable = true;
+        Bitmap bmp = BitmapFactory.decodeByteArray(d, 0, d.length, options);
 
+        /* Flip bitmap */
+        Matrix m = new Matrix();
+        m.preScale(-1, 1);
+        Bitmap dst = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), m, false);
+        dst.setDensity(DisplayMetrics.DENSITY_DEFAULT);
 
+        /* Convert back */
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        dst.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+        return bos.toByteArray();
+    }
 }
