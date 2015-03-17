@@ -47,6 +47,7 @@ public class FullscreenCamera extends ActionBarActivity {
     private final String tempTitle = "";
     private static boolean inPreview = false;
     private static int currentCameraId = -5;
+    View mView;
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
         public void onShutter(){
@@ -56,6 +57,7 @@ public class FullscreenCamera extends ActionBarActivity {
     private boolean pictureTaken = false;
     private UUID mLapseId;
     private ImageView mImageView;
+    private final StringBuilder filePath = new StringBuilder("");
 
     private SurfaceHolder.Callback SHCallback= new SurfaceHolder.Callback() {
         @Override
@@ -125,13 +127,14 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     };
 
+
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
         public void onPictureTaken(byte[] data, Camera camera) {
             if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 data = flip(data);
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
-            final StringBuilder filePath = new StringBuilder("");
+            filePath.setLength(0);
             boolean success = true;
             try{
                 String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp/";
@@ -162,10 +165,135 @@ public class FullscreenCamera extends ActionBarActivity {
             }
 
             if(success) {
+
+                mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
+
+
+
+
                 Log.v(TAG, "success");
                 /*Create AlertDialog that writes into tempTitle*/
                 /* picture is saved, do something with it, ask for title etc*/
                 Log.v("PIc success", "Picture, " + firstPic);
+//                if(firstPic) {
+//                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
+//                    final EditText textbox = new EditText(FullscreenCamera.this);
+//                    alertDialogBuilder.setTitle("Add a title to your EZLapse")
+//                            .setView(textbox)
+//                            .setCancelable(true);
+//                    alertDialogBuilder.setPositiveButton(R.string.confirm,
+//                            new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int arg1) {
+//                                    String tempTitle = textbox.getText().toString();
+//                                    String LapseDirect = EZdirectory + tempTitle + "/";
+//                                    File LapseDir = new File(LapseDirect);
+//                                    if (LapseDir.exists()) {
+//                                        Toast toast = Toast.makeText(getApplicationContext(), "Lapse with file name " +
+//                                                        tempTitle + " already exists ",
+//                                                Toast.LENGTH_SHORT);
+//                                        toast.show();
+//                                        dialog.dismiss();
+//                                        mCamera.startPreview();
+//                                        inPreview = true;
+//                                        return;
+//                                    }
+//                                    LapseDir.mkdirs();
+//                                    File to = new File(LapseDirect, tempTitle + "-Photo1.jpg");
+//                                    File from = new File(filePath.toString());
+//                                    from.renameTo(to);
+//                                    Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
+//                                    mLapseId = newLapse.getId();
+//                                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
+//                                    dialog.dismiss();
+//
+//                                    mCamera.startPreview();
+//                                    inPreview = true;
+//                                    pictureTaken = true;
+//                                    firstPic = false;
+//                                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+//                                    mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+//                                    mImageView.setAlpha(.5f);
+//                                }
+//                            });
+//                    alertDialogBuilder.setNegativeButton(R.string.cancel,
+//                            new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                    mCamera.startPreview();
+//                                    inPreview = true;
+//                                }
+//                            });
+//                    alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                        @Override
+//                        public void onCancel(DialogInterface dialog) {
+//                            dialog.dismiss();
+//                            mCamera.startPreview();
+//                            inPreview = true;
+//                        }
+//                    });
+//                    AlertDialog alertDialog = alertDialogBuilder.create();
+//                    alertDialog.show();
+//                }
+//                else{
+//                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
+//                    String title = currentLapse.getTitle();
+//                    int size = currentLapse.getPhotoNum();
+//                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+//                    File from = new File(filePath.toString());
+//                    from.renameTo(to);
+//                    currentLapse.add(new Photo(to.getPath(), new Date()));
+//                    pictureTaken = true;
+//                    mCamera.startPreview();
+//                    inPreview = true;
+//
+//                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+//                }
+            }else{
+                Intent returnIntent = new Intent();
+                setResult(RESULT_CANCELED, returnIntent);
+                finish();
+            }
+            //finish();
+        }
+    };
+
+    @Override
+    @SuppressWarnings("deprecation")
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
+
+        mCamera = null;
+
+        currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+Log.v("tracker", "current camera id on create: " + currentCameraId );
+        setContentView(R.layout.activity_fullscreen_camera);
+        mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
+
+        mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
+        mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
+
+        ImageButton cancelTakeButton = (ImageButton) mView.findViewById(R.id.cancel_take);
+        cancelTakeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCamera.startPreview();
+                inPreview = true;
+                mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
+            }
+        });
+
+        ImageButton confirmTakeButton = (ImageButton) mView.findViewById(R.id.confirm_take);
+        confirmTakeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 if(firstPic) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
                     final EditText textbox = new EditText(FullscreenCamera.this);
@@ -241,32 +369,14 @@ public class FullscreenCamera extends ActionBarActivity {
 
                     mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
                 }
-            }else{
-                Intent returnIntent = new Intent();
-                setResult(RESULT_CANCELED, returnIntent);
-                finish();
+                mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
             }
-            //finish();
-        }
-    };
-
-    @Override
-    @SuppressWarnings("deprecation")
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
+        });
 
 
-        mCamera = null;
-
-        currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-Log.v("tracker", "current camera id on create: " + currentCameraId );
-        setContentView(R.layout.activity_fullscreen_camera);
-        View v = this.getWindow().getDecorView().findViewById(android.R.id.content);
-
-        v.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
-        v.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
-        mImageView = (ImageView) v.findViewById(R.id.opaque_image_view);
+        mImageView = (ImageView) mView.findViewById(R.id.opaque_image_view);
 
         if(getIntent().getExtras()!=null &&
                     getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
@@ -286,7 +396,7 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
                 mImageView.setAlpha(.5f);
         }
 
-        ImageButton changeCamera = (ImageButton) v.findViewById(R.id.change_camera);
+        ImageButton changeCamera = (ImageButton) mView.findViewById(R.id.change_camera);
         changeCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -340,7 +450,7 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
             }
         });
 
-        ImageButton takePictureButton = (ImageButton) v.findViewById(R.id.lapse_camera_takePictureButton);
+        ImageButton takePictureButton = (ImageButton) mView.findViewById(R.id.lapse_camera_takePictureButton);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -349,7 +459,7 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
             }
         });
 
-        mSurfaceView = (SurfaceView) v. findViewById(R.id.lapse_camera_surfaceView);
+        mSurfaceView = (SurfaceView) mView. findViewById(R.id.lapse_camera_surfaceView);
         SurfaceHolder holder = mSurfaceView.getHolder();
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
