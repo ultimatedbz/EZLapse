@@ -44,7 +44,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
     private Camera mCamera;
     private SurfaceView mSurfaceView;
-    private final String tempTitle = "";
     private static boolean inPreview = false;
     private static int currentCameraId = -5;
     View mView;
@@ -55,6 +54,7 @@ public class FullscreenCamera extends ActionBarActivity {
     };
     private boolean firstPic = true;
     private boolean pictureTaken = false;
+    private boolean alpha = true;
     private UUID mLapseId;
     private ImageView mImageView;
     private final StringBuilder filePath = new StringBuilder("");
@@ -169,89 +169,11 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.switch_overlay).setVisibility(View.VISIBLE);
 
+                mImageView.setAlpha(0.01f);
+                alpha = false;
 
-
-
-                Log.v(TAG, "success");
-                /*Create AlertDialog that writes into tempTitle*/
-                /* picture is saved, do something with it, ask for title etc*/
-                Log.v("PIc success", "Picture, " + firstPic);
-//                if(firstPic) {
-//                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
-//                    final EditText textbox = new EditText(FullscreenCamera.this);
-//                    alertDialogBuilder.setTitle("Add a title to your EZLapse")
-//                            .setView(textbox)
-//                            .setCancelable(true);
-//                    alertDialogBuilder.setPositiveButton(R.string.confirm,
-//                            new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int arg1) {
-//                                    String tempTitle = textbox.getText().toString();
-//                                    String LapseDirect = EZdirectory + tempTitle + "/";
-//                                    File LapseDir = new File(LapseDirect);
-//                                    if (LapseDir.exists()) {
-//                                        Toast toast = Toast.makeText(getApplicationContext(), "Lapse with file name " +
-//                                                        tempTitle + " already exists ",
-//                                                Toast.LENGTH_SHORT);
-//                                        toast.show();
-//                                        dialog.dismiss();
-//                                        mCamera.startPreview();
-//                                        inPreview = true;
-//                                        return;
-//                                    }
-//                                    LapseDir.mkdirs();
-//                                    File to = new File(LapseDirect, tempTitle + "-Photo1.jpg");
-//                                    File from = new File(filePath.toString());
-//                                    from.renameTo(to);
-//                                    Lapse newLapse = new Lapse(tempTitle, new Date(), to.getAbsolutePath());
-//                                    mLapseId = newLapse.getId();
-//                                    LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
-//                                    dialog.dismiss();
-//
-//                                    mCamera.startPreview();
-//                                    inPreview = true;
-//                                    pictureTaken = true;
-//                                    firstPic = false;
-//                                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
-//                                    mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-//                                    mImageView.setAlpha(.5f);
-//                                }
-//                            });
-//                    alertDialogBuilder.setNegativeButton(R.string.cancel,
-//                            new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.dismiss();
-//                                    mCamera.startPreview();
-//                                    inPreview = true;
-//                                }
-//                            });
-//                    alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                        @Override
-//                        public void onCancel(DialogInterface dialog) {
-//                            dialog.dismiss();
-//                            mCamera.startPreview();
-//                            inPreview = true;
-//                        }
-//                    });
-//                    AlertDialog alertDialog = alertDialogBuilder.create();
-//                    alertDialog.show();
-//                }
-//                else{
-//                    Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
-//                    String title = currentLapse.getTitle();
-//                    int size = currentLapse.getPhotoNum();
-//                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
-//                    File from = new File(filePath.toString());
-//                    from.renameTo(to);
-//                    currentLapse.add(new Photo(to.getPath(), new Date()));
-//                    pictureTaken = true;
-//                    mCamera.startPreview();
-//                    inPreview = true;
-//
-//                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
-//                }
             }else{
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
@@ -277,6 +199,21 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
 
         mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
         mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
+        mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
+
+        ImageButton switchOverlayButton = (ImageButton) mView.findViewById(R.id.switch_overlay);
+        switchOverlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("tracker","clicked on switch");
+                if(alpha)
+                    mImageView.setAlpha(0.01f);
+                else{
+                    mImageView.setAlpha(.5f);
+                }
+                alpha = !alpha;
+            }
+        });
 
         ImageButton cancelTakeButton = (ImageButton) mView.findViewById(R.id.cancel_take);
         cancelTakeButton.setOnClickListener(new View.OnClickListener() {
@@ -287,6 +224,8 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
                 mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
+
             }
         });
 
@@ -372,6 +311,7 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
                 mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
             }
         });
 

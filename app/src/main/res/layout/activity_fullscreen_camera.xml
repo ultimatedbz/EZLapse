@@ -37,6 +37,13 @@
             android:src="@drawable/smile"
             android:background="@null"/>
         <ImageButton
+            android:id="@+id/switch_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:src="@drawable/boom"
+            android:background="@null"/>
+            <ImageButton
             android:id="@+id/cancel_take"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
