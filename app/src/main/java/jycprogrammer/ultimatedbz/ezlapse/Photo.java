@@ -33,9 +33,6 @@ public class Photo {
         mId = id;
     }
 
-    public Date getDate() {
-        return mDate;
-    }
 
     public void setDate(Date date) {
         mDate = date;

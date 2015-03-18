@@ -1,7 +1,5 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
-import android.util.Log;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,12 +57,15 @@ public class Lapse {
     public void deleteLapse(){
         File f = new File(mPhotos.get(0).getFilePath());
         File parentFile = new File(f.getParentFile().getAbsolutePath());
-        Log.v("tracker", f.getParentFile().getAbsolutePath());
         deleteDirectory(parentFile);
     }
 
-    public void deletePhoto(int i){
-
+    public void deletePhoto(Photo i) {
+        if(mPhotos.size() == 1)
+            deleteLapse();
+        File f = new File(i.getFilePath());
+        f.delete();
+        mPhotos.remove(i);
     }
 
     public static boolean deleteDirectory(File path) {

@@ -1,11 +1,17 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,18 +21,22 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Created by jeffreychen on 1/31/15.
  */
-public class PhotoGridActivity extends ActionBarActivity{
+public class PhotoGridActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     public static final String EXTRA_LAPSE_ID = "The ID of the lapse clicked";
+    public static final String EXTRA_EMPTY_LAPSE = "The Lapse is now empty";
+
     private ArrayList<Photo> mPhotoGallery;
     private UUID mLapseId;
     private GridView mGrid;
     private static final String DIALOG_IMAGE = "image";
+    private DeletePhotoAdapter deleteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +48,8 @@ public class PhotoGridActivity extends ActionBarActivity{
             mLapseId = (UUID) getIntent().getExtras().getSerializable(EXTRA_LAPSE_ID);
             mPhotoGallery = LapseGallery.get(getApplicationContext()).
                     getLapse(mLapseId).getPhotos();
+            setTitle(LapseGallery.get(getApplicationContext()).
+                    getLapse(mLapseId).getTitle());
         }else{
             finish();
         }
@@ -45,21 +57,11 @@ public class PhotoGridActivity extends ActionBarActivity{
         mGrid = (GridView) findViewById(R.id.photo_grid);
         PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
         mGrid.setAdapter(adapter);
-        mGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
-
-        mGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
-            }
-        });
     }
 
+    public void onItemClick(android.widget.AdapterView<?> adapterView, View view, int position, long id) {
+        view.performLongClick();
+    }
 
 
     @Override
@@ -72,18 +74,20 @@ public class PhotoGridActivity extends ActionBarActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case jycprogrammer.ultimatedbz.ezlapse.R.id.show_slideshow:
+            case R.id.show_slideshow:
                 Intent in = new Intent(PhotoGridActivity.this, PhotoSlideshowActivity.class);
                 in.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseId);
                 startActivity(in);
+                return true;
+            case R.id.action_delete:
+                deleteAdapter = new DeletePhotoAdapter(this, null, mPhotoGallery);
+                deleteAdapter.setAdapterView(mGrid);
+
+                deleteAdapter.setOnItemClickListener(this);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private Bitmap get_from_file(String filepath, int width, int height)
-    {
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filepath), width, height, false);
     }
 
     private class PhotoAdapter extends ArrayAdapter<Photo> {
@@ -103,17 +107,160 @@ public class PhotoGridActivity extends ActionBarActivity{
             picture.setImageBitmap(myBitmap);
 
             final int p = position;
-           /* picture.setOnClickListener(new View.OnClickListener() {
+            picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-            ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
+                android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+                ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
                 }
             });
 
-*/
+           return convertView;
+        }
+    }
+
+    private void removePhotos(Set<Long> checked) {
+        ArrayList<Photo> temp = new ArrayList<Photo>();
+        Lapse currentLapse = null;
+        LapseGallery lg = null;
+        for (Long it : checked)
+            temp.add(mPhotoGallery.get(it.intValue()));
+        for (Photo it : temp) {
+            Log.v("tracker", "should only run once");
+
+            /* Delete Photo */
+            lg = LapseGallery.get(getApplicationContext());
+            currentLapse = lg.getLapse(mLapseId);
+            currentLapse.deletePhoto(it);
+            mPhotoGallery.remove(it);
+        }
+
+         /* If it's the last photo delete the lapse */
+            // Implemented in Lapse.java
+    }
+
+    private class DeletePhotoAdapter extends MultiChoiceBaseAdapter {
+        private ArrayList<Photo> photos;
+        private AlertDialog mDialog;
+        private AlertDialog.Builder mDialogBuilder;
+
+        public DeletePhotoAdapter(Context c, Bundle savedInstanceState, ArrayList<Photo> items) {
+            super(savedInstanceState);
+            this.photos = items;
+            mDialogBuilder = new AlertDialog.Builder(c)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Delete")
+                    .setPositiveButton("Yes", null)
+                    .setNegativeButton("No", null);
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(jycprogrammer.ultimatedbz.ezlapse.R.menu.menu_delete_lapse_grid, menu);
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            updateView();
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.action_do_delete) {
+                final Set<Long> checked = getCheckedItems();
+                if (!checked.isEmpty()) {
+                    //TODO ask are you sure?!?!
+                    mDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            removePhotos(checked);
+                            updateView();
+                        }
+                    });
+                    if (getCheckedItemCount() > 1)
+                        mDialogBuilder.setMessage("Are you sure you want to delete "
+                                + getCheckedItemCount() + " Photos?");
+                    else
+                        mDialogBuilder.setMessage("Are you sure you want to delete "
+                                + getCheckedItemCount() + " Photo?");
+
+                    mDialog = mDialogBuilder.create();
+                    mDialog.show();
+                }
+                finishActionMode();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+
+        @Override
+        public int getCount() {
+            return photos.size();
+        }
+
+        @Override
+        public Photo getItem(int position) {
+            return photos.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        protected View getViewImpl(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = PhotoGridActivity.this.getLayoutInflater()
+                        .inflate(R.layout.delete_photo_layout, parent, false);
+
+            }
+
+            Bitmap myBitmap = get_from_file(getItem(position).getFilePath(), 175, 175);
+            ImageView picture = (ImageView) convertView.
+                    findViewById(R.id.grid_item_image);
+            picture.setImageBitmap(myBitmap);
+
             return convertView;
+        }
+
+    }
+    private Bitmap get_from_file(String filepath, int width, int height)
+    {
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(filepath), width, height, false);
+    }
+
+    private void updateView(){
+        if(mPhotoGallery.size() == 0){
+            Log.v("tracker", "mphotogallery is empty. should return");
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(EXTRA_EMPTY_LAPSE, true);
+            returnIntent.putExtra(EXTRA_LAPSE_ID, mLapseId);
+            setResult(RESULT_OK, returnIntent);
+            finish();
+            return;
+        }
+
+        Log.v("tracker", "mphotogallery not empty");
+        setContentView(R.layout.activity_photo_grid);
+        mGrid = (GridView) findViewById(R.id.photo_grid);
+        setTitle(LapseGallery.get(getApplicationContext()).
+                getLapse(mLapseId).getTitle());
+        if(mGrid.getAdapter() != null) {
+            mGrid.invalidateViews();
+            //((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
+        }else {
+            PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
+            mGrid.setAdapter(adapter);
         }
     }
 }

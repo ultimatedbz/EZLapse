@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -169,7 +168,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
-                mView.findViewById(R.id.switch_overlay).setVisibility(View.VISIBLE);
+
+                if(!firstPic)
+                    mView.findViewById(R.id.switch_overlay).setVisibility(View.VISIBLE);
 
                 mImageView.setAlpha(0.01f);
                 alpha = false;
@@ -193,7 +194,7 @@ public class FullscreenCamera extends ActionBarActivity {
         mCamera = null;
 
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-Log.v("tracker", "current camera id on create: " + currentCameraId );
+        Log.v("tracker", "current camera id on create: " + currentCameraId );
         setContentView(R.layout.activity_fullscreen_camera);
         mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
 
@@ -225,7 +226,8 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
-
+                mImageView.setAlpha(0.5f);
+                alpha = true;
             }
         });
 
@@ -297,13 +299,15 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
                 else{
                     Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
                     String title = currentLapse.getTitle();
-                    int size = currentLapse.getPhotoNum();
-                    File to = new File(EZdirectory + title + "/", title + "-Photo" + ++size + ".jpg");
+                    String number = currentLapse.getLatest().substring(currentLapse.getLatest().indexOf("-Photo") + 6);
+                    Log.v("tracker", "number: " + number);
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + number + ".jpg");
                     File from = new File(filePath.toString());
                     from.renameTo(to);
                     currentLapse.add(new Photo(to.getPath(), new Date()));
                     pictureTaken = true;
                     mCamera.startPreview();
+                    mImageView.setAlpha(.5f);
                     inPreview = true;
 
                     mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
@@ -433,13 +437,10 @@ Log.v("tracker", "current camera id on create: " + currentCameraId );
     @Override
     public void onResume(){
         super.onResume();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD){
-            if (mCamera == null) {
-                mCamera = Camera.open(0);
-                Log.v(TAG, "on resume ran");
-            }
-        }else{
-            if (mCamera == null) mCamera = Camera.open();
+        if (mCamera == null) {
+            mCamera = Camera.open(0);
+            mCamera.startPreview();
+            inPreview = true;
         }
     }
 

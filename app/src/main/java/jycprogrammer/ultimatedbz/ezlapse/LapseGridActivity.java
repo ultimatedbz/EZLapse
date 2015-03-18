@@ -39,6 +39,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     private static String TAG = "lapse_grid_activity";
     private static final int REQUEST_PHOTO = 0;
+    private static final int REQUEST_GRID = 1;
 
     private Button create_lapse_button;
     public ArrayList<Lapse> mLapseGallery;
@@ -112,7 +113,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 onSearchRequested();
                 return true;
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_delete:
-                supportInvalidateOptionsMenu();
+                //supportInvalidateOptionsMenu();
 
                 deleteAdapter = new DeleteLapseAdapter(this, null, mCurrentList);
                 deleteAdapter.setAdapterView(the_grid);
@@ -168,7 +169,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         for (Long it : checked)
             temp.add(mCurrentList.get(it.intValue()));
         for (Lapse it : temp) {
-            Log.v("tracker","should only run once");
             it.deleteLapse();
             mCurrentList.remove(it);
             mLapseGallery.remove(it);
@@ -226,8 +226,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
                     mDialog = mDialogBuilder.create();
                     mDialog.show();
-
-
                 }
                 finishActionMode();
                 return true;
@@ -296,11 +294,10 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     private void updateView(){
         if(mCurrentList.size() > 0) {
-            setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_lapses_grid);
+            setContentView(R.layout.activity_there_are_lapses_grid);
             the_grid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
             Collections.sort(mCurrentList, new CustomComparator());
             if(the_grid.getAdapter() != null) {
-                Log.v(TAG,"Invalidating views");
                 the_grid.invalidateViews();
                 //((LapseAdapter) the_grid.getAdapter()).notifyDataSetChanged();
             }
@@ -312,7 +309,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
                         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
-                        startActivity(i);
+                        startActivityForResult(i, REQUEST_GRID);
 
                         /*Intent i = new Intent(LapseGridActivity.this, PhotoSlideshowActivity.class);
                         i.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
@@ -369,13 +366,23 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
             if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) {
-                updateView();
-                Log.v("tracker","lapsegridavity");
+
                 Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                 UUID id = (UUID) data.getExtras().getSerializable(FullscreenCamera.EXTRA_LAPSE_ID);
                 i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, id);
-                startActivityForResult(i, REQUEST_PHOTO);
+                startActivityForResult(i, REQUEST_GRID);
             }
+        }
+        if( requestCode == REQUEST_GRID) {
+
+            if(data.getBooleanExtra(PhotoGridActivity.EXTRA_EMPTY_LAPSE, false))
+            {
+                UUID id = (UUID) data.getExtras().getSerializable(PhotoGridActivity.EXTRA_LAPSE_ID);
+                Lapse it = LapseGallery.get(LapseGridActivity.this).getLapse(id);
+                mCurrentList.remove(it);
+                mLapseGallery.remove(it);
+                updateView();
+           }
         }
     }
     private void updateView(ArrayList<Lapse> terms){
@@ -411,7 +418,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
             /* Displays latest picture*/
             File imgFile = new  File(getItem(position).getLatest());
-
             if(imgFile.exists()){
                 Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
                 //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
