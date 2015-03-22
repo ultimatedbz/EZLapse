@@ -82,7 +82,7 @@ public class PropertyValuesHolder implements Cloneable {
 
     // We try several different types when searching for appropriate setter/getter functions.
     // The caller may have supplied values in a type that does not match the setter/getter
-    // functions (such as the integers 0 and 1 to represent floating point values for alpha).
+    // functions (such as the integers 0 and 1 to represent floating point values for fade_out).
     // Also, the use of generics in constructors means that we end up with the Object versions
     // of primitive types (Float vs. float). But most likely, the setter/getter functions
     // will take primitive types instead.

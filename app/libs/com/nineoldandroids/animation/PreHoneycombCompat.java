@@ -7,7 +7,7 @@ import com.nineoldandroids.util.Property;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 
 final class PreHoneycombCompat {
-    static Property<View, Float> ALPHA = new FloatProperty<View>("alpha") {
+    static Property<View, Float> ALPHA = new FloatProperty<View>("fade_out") {
         @Override
         public void setValue(View object, float value) {
             AnimatorProxy.wrap(object).setAlpha(value);

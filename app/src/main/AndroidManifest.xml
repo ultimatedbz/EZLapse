@@ -49,10 +49,8 @@
         <activity
             android:name=".PhotoSlideshowActivity"
             android:label="@string/title_activity_photo_slideshow"
-            android:parentActivityName=".LapseGridActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="jycprogrammer.ultimatedbz.ezlapse.LapseGridActivity" />
+            android:parentActivityName=".PhotoGridActivity"
+            android:theme="@style/FullscreenTheme">
         </activity>
     </application>
 

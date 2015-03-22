@@ -41,7 +41,7 @@ public final class ObjectAnimator extends ValueAnimator {
     private static final Map<String, Property> PROXY_PROPERTIES = new HashMap<String, Property>();
 
     static {
-        PROXY_PROPERTIES.put("alpha", PreHoneycombCompat.ALPHA);
+        PROXY_PROPERTIES.put("fade_out", PreHoneycombCompat.ALPHA);
         PROXY_PROPERTIES.put("pivotX", PreHoneycombCompat.PIVOT_X);
         PROXY_PROPERTIES.put("pivotY", PreHoneycombCompat.PIVOT_Y);
         PROXY_PROPERTIES.put("translationX", PreHoneycombCompat.TRANSLATION_X);
