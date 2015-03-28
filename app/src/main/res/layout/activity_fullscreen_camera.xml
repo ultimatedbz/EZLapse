@@ -26,7 +26,7 @@
             android:layout_gravity="top|right"
             android:paddingTop="40dp"
             android:paddingRight="40dp"
-            android:src="@drawable/five_cm"
+            android:src="@drawable/switch_camera"
             android:background="@null"/>
         <ImageButton
             android:id="@+id/confirm_take"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
             android:paddingRight="40dp"
-            android:src="@drawable/smile"
+            android:src="@drawable/green_check"
             android:background="@null"/>
         <ImageButton
             android:id="@+id/switch_overlay"
@@ -49,6 +49,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|left"
             android:paddingLeft="40dp"
-            android:src="@drawable/puss"
+            android:src="@drawable/red_cross"
             android:background="@null"/>
 </FrameLayout>

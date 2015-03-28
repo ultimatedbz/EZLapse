@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,14 +119,34 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
                 deleteAdapter.setOnItemClickListener(this);
                 return true;
-            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_settings:
+           /* case jycprogrammer.ultimatedbz.ezlapse.R.id.action_settings:
                 Toast.makeText(getApplicationContext(), "Settings not implemented yet, too bad",
                 Toast.LENGTH_SHORT).show();
-                return true;
+                return true;*/
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_help:
-                Toast.makeText(getApplicationContext(), "Help not implemented yet, you're on your own",
-                Toast.LENGTH_SHORT).show();
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(LapseGridActivity.this);
 
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage(R.string.help_message)
+                        .setTitle("Help");
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                return true;
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_about:
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(LapseGridActivity.this);
+
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder2.setMessage(R.string.about_message)
+                        .setTitle("About");
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog2 = builder2.create();
+                dialog2.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -371,6 +390,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 UUID id = (UUID) data.getExtras().getSerializable(FullscreenCamera.EXTRA_LAPSE_ID);
                 i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, id);
                 startActivityForResult(i, REQUEST_GRID);
+                updateView();
             }
         }
         if( requestCode == REQUEST_GRID) {

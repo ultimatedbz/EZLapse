@@ -18,5 +18,11 @@
     <string name="cancel">Cancel</string>
     <string name="title_activity_photogrid"></string>
     <string name="title_activity_photo_slideshow">PhotoSlideshowActivity</string>
+    <string name="about_message">Thank you so much for trying out our app! This app was
+                    first written on the last weekend of January, 2015 at the UC Santa Barbara
+                    Hackathon. Its creators, Jeffrey Chen, Alex Hesslegrave, and Andrew Lee
+                    coded for 36 hours to bring to the world the first prototype of EZLapse. Since then,
+                    they\'ve continued to work on and improve EZLapse and made it what it is today. </string>
+    <string name="help_message"></string>
 
 </resources>

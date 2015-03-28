@@ -168,6 +168,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.change_camera).setVisibility(View.INVISIBLE);
 
                 if(!firstPic)
                     mView.findViewById(R.id.switch_overlay).setVisibility(View.VISIBLE);
@@ -226,6 +227,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                 mImageView.setAlpha(0.5f);
                 alpha = true;
             }
@@ -316,6 +318,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
             }
         });
 

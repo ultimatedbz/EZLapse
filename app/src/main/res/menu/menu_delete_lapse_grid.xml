@@ -8,6 +8,6 @@
           android:title="trash_action"
           android:orderInCategory="1"
           app:showAsAction="always"
-          android:icon="@drawable/evil_totoro"
+          android:icon="@drawable/delete_icon"
           />
 </menu>
