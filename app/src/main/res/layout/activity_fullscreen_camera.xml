@@ -15,7 +15,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/doggy_butt"
+            android:src="@drawable/ez_icon"
             android:id="@+id/lapse_camera_takePictureButton"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@null"/>
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:src="@drawable/boom"
+            android:src="@drawable/change_overlay_icon"
             android:background="@null"/>
         <ImageButton
             android:id="@+id/cancel_take"
