@@ -33,6 +33,7 @@ public class Splash extends Activity{
                     Splash.this.finish();
                 }
             }, SPLASH_DISPLAY_LENGTH);
+            splashLoaded = true;
         }else{
             Intent goToMainActivity = new Intent(Splash.this, LapseGridActivity.class);
             goToMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
