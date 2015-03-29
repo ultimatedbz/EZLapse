@@ -53,7 +53,13 @@
             android:label="@string/title_activity_photo_slideshow"
             android:parentActivityName=".PhotoGridActivity"
             android:theme="@style/FullscreenTheme">
-        </activity>
+        </activity><!--
+        <activity
+            android:name=".PreferencesActivity"
+            android:label="preferences"
+            android:parentActivityName=".LapseGridActivity"
+            android:theme="@style/AppTheme">
+         </activity>-->
     </application>
 
 </manifest>

@@ -6,10 +6,12 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
@@ -39,6 +41,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     private static String TAG = "lapse_grid_activity";
     private static final int REQUEST_PHOTO = 0;
     private static final int REQUEST_GRID = 1;
+    private static final int RESULT_SETTINGS = 2;
 
     private Button create_lapse_button;
     public ArrayList<Lapse> mLapseGallery;
@@ -118,10 +121,11 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 deleteAdapter.setAdapterView(the_grid);
 
                 deleteAdapter.setOnItemClickListener(this);
-                return true;
-           /* case jycprogrammer.ultimatedbz.ezlapse.R.id.action_settings:
-                Toast.makeText(getApplicationContext(), "Settings not implemented yet, too bad",
-                Toast.LENGTH_SHORT).show();
+                return true;/*
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_settings:
+                Log.v("tracker", "0");
+                Intent j = new Intent(this, PreferencesActivity.class);
+                startActivityForResult(j, RESULT_SETTINGS);
                 return true;*/
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_help:
                 // 1. Instantiate an AlertDialog.Builder with its constructor
@@ -404,6 +408,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 updateView();
            }
         }
+        if( requestCode == RESULT_SETTINGS) {
+            showUserSettings();
+        }
     }
     private void updateView(ArrayList<Lapse> terms){
         if(terms.size() > 0)
@@ -454,6 +461,25 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         }
     }
 
+    private void showUserSettings() {
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("\n Username: "
+                + sharedPrefs.getString("prefUsername", "NULL"));
+
+        builder.append("\n Send report:"
+                + sharedPrefs.getBoolean("prefSendReport", false));
+
+        builder.append("\n Sync Frequency: "
+                + sharedPrefs.getString("prefSyncFrequency", "NULL"));
+
+       /* TextView settingsTextView = (TextView) findViewById(R.id.textUserSettings);
+
+        settingsTextView.setText(builder.toString());*/
+    }
 }
 
 
