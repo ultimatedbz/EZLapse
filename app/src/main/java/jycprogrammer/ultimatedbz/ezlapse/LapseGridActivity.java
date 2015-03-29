@@ -63,29 +63,31 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         //create empty Lapse Gallery
         mLapseGallery = LapseGallery.get(LapseGridActivity.this).getLapses();
         mCurrentList = mLapseGallery;
-        //probably gotta do null checks for new peeps, do that later
 
         File f = new File(EZdirectory);
         File[] files = f.listFiles();
-        if(files != null && files.length > 0 && mLapseGallery.size() == 0)
-        for (File inFile : files)
-            if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
-                //for every picture in subdirectory, put into Lapse
-                File[] subFiles = inFile.listFiles();
+        if(files != null && files.length > 0 && mLapseGallery.size() == 0){
+            for (File inFile : files) {
+                if (inFile.isDirectory() && !inFile.getName().equals("tmp")) { //ignore tmp
+                    //for every picture in subdirectory, put into Lapse
+                    File[] subFiles = inFile.listFiles();
 
-                Lapse l = new Lapse(inFile.getName());
-                for (File subFile : subFiles) {
-                    String absolutePath = subFile.getAbsolutePath();
-                    Photo photo = new Photo(absolutePath, new Date());
-                    l.add(photo);
-                }
-                if (l.getPhotoNum() > 0) {
-                    LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
+                    Lapse l = new Lapse(inFile.getName());
+                    for (File subFile : subFiles) {
+                        String absolutePath = subFile.getAbsolutePath();
+                        Photo photo = new Photo(absolutePath, new Date());
+                        l.add(photo);
+                    }
+                    if (l.getPhotoNum() > 0) {
+                        LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
+                    }
+                } else if(inFile.isDirectory()){
+                    Lapse.deleteDirectory(inFile);
                 }
             }
+        }
 
         updateView();
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
     }
 
@@ -95,17 +97,12 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-
         getMenuInflater().inflate(jycprogrammer.ultimatedbz.ezlapse.R.menu.menu_lapse_grid, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()){
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_new:
                 Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
@@ -167,9 +164,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.v("New Intent", "Got a search query");
             ArrayList<Lapse> stuff = doSearch(query);
-            Log.v("New Intent", "Search is done");
             updateView(stuff);
         }
     }
@@ -177,7 +172,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     private ArrayList<Lapse> doSearch(String query)
     {
-        Log.v("Query", "Doing the search");
         ArrayList<Lapse> ret = new ArrayList<Lapse>();
         for(Lapse a : mLapseGallery)
         {
@@ -232,7 +226,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             if (item.getItemId() == R.id.action_do_delete) {
                 final Set<Long> checked = getCheckedItems();
                 if (!checked.isEmpty()) {
-                    //TODO ask are you sure?!?!
                     mDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -284,25 +277,18 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.delete_lapse_icon_layout, parent, false);
             }
 
-            //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
-            //and/or the activity_there_are_lapses_grid_lapses_grid.xml file
-
-
             /* Displays latest picture*/
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
                 Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
-                //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
                 findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
-                picture.setImageBitmap(myBitmap); //might be too big
+                picture.setImageBitmap(myBitmap);
                 TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
 
             }
-
-
             return convertView;
         }
 
@@ -334,9 +320,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_GRID);
 
-                        /*Intent i = new Intent(LapseGridActivity.this, PhotoSlideshowActivity.class);
-                        i.putExtra(PhotoSlideshowActivity.EXTRA_LAPSE_ID, mLapseGallery.get(position).getId());
-                        startActivityForResult(i, REQUEST_PHOTO);*/
                         return true;
                     }
                 });
@@ -379,12 +362,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             super.onBackPressed();
     }
 
-/*
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-            deleteAdapter.save(outState);
-    }
-*/
     public void onActivityResult( int requestCode, int resultCode, Intent data){
         if(resultCode != Activity.RESULT_OK) return;
         if(requestCode == REQUEST_PHOTO){
@@ -438,10 +415,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 convertView = LapseGridActivity.this.getLayoutInflater().
                         inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.lapse_icon_layout, parent, false);
             }
-
-            //If want to change the layout of each icon, modify the lapse_icon_layout.xml file
-            //and/or the activity_yes_lapse.xml file
-
 
             /* Displays latest picture*/
             File imgFile = new  File(getItem(position).getLatest());

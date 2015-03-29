@@ -83,8 +83,6 @@ public class FullscreenCamera extends ActionBarActivity {
             Camera.getCameraInfo(1, camInfo);
             int cameraRotationOffset = camInfo.orientation;
 
-
-            Log.v("tracker", "" + cameraRotationOffset);
                 /* Need to find better way of fixing camera orientation */
             if( cameraRotationOffset == 270)
                 mCamera.setDisplayOrientation(90);
@@ -297,13 +295,12 @@ public class FullscreenCamera extends ActionBarActivity {
                     });
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
-                }
-                else{
+                }else{
                     Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
                     String title = currentLapse.getTitle();
-                    String number = currentLapse.getLatest().substring(currentLapse.getLatest().indexOf("-Photo") + 6);
-                    Log.v("tracker", "number: " + number);
-                    File to = new File(EZdirectory + title + "/", title + "-Photo" + number + ".jpg");
+                    String number = currentLapse.getLatest().substring(currentLapse.getLatest().indexOf("-Photo") + 6, currentLapse.getLatest().indexOf(".jpg"));
+
+                    File to = new File(EZdirectory + title + "/", title + "-Photo" + (Integer.parseInt(number) + 1) + ".jpg");
                     File from = new File(filePath.toString());
                     from.renameTo(to);
                     currentLapse.add(new Photo(to.getPath(), new Date()));
