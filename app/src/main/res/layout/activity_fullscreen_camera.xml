@@ -10,6 +10,11 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:id="@+id/preview_image_view"
+            android:adjustViewBounds="true"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:id="@+id/opaque_image_view"
             android:adjustViewBounds="true"/>
         <ImageButton
