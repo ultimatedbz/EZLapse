@@ -339,9 +339,9 @@ public class FullscreenCamera extends ActionBarActivity {
                     from.renameTo(to);
                     currentLapse.add(new Photo(to.getPath(), new Date()));
                     pictureTaken = true;
-                    mCamera.startPreview();
+
                     mImageView.setAlpha(.5f);
-                    inPreview = true;
+
 
                     mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
@@ -351,6 +351,9 @@ public class FullscreenCamera extends ActionBarActivity {
                     mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
+
+                    mCamera.startPreview();
+                    inPreview = true;
                 }
             }
         });
