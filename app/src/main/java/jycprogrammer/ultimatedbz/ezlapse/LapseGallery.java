@@ -13,14 +13,14 @@ public class LapseGallery {
 
     private ArrayList<Lapse> mLapses;
     private Context mAppContext;
-
+/*
     public void add(Lapse l){
         mLapses.add(l);
     }
 
-    public void delete(Lapse l){
+    public void remove(Lapse l){
         mLapses.remove(l);
-    }
+    }*/
 
     public ArrayList<Lapse> getLapses(){
         return mLapses;
@@ -45,5 +45,4 @@ public class LapseGallery {
         }
         return sLapseGallery;
     }
-
 }

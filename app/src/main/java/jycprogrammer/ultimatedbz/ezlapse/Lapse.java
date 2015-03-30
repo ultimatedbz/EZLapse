@@ -48,12 +48,12 @@ public class Lapse {
     }
     public String getLatest(){
         return mPhotos.get(mPhotos.size() - 1).getFilePath();
-
     }
 
     public void add(Photo photo){
         mPhotos.add(photo);
     }
+
     public void deleteLapse(){
         File f = new File(mPhotos.get(0).getFilePath());
         File parentFile = new File(f.getParentFile().getAbsolutePath());

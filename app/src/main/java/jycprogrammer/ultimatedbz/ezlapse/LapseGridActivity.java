@@ -79,7 +79,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         l.add(photo);
                     }
                     if (l.getPhotoNum() > 0) {
-                        LapseGallery.get(LapseGridActivity.this).getLapses().add(l);
+                       mLapseGallery.add(l);
                     }
                 } else if(inFile.isDirectory()){
                     Lapse.deleteDirectory(inFile);
@@ -326,7 +326,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        //add to lapse
                         Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
@@ -337,7 +336,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             onBackPressed();
         }else{
             setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_no_lapses);
-            // Get EZLapse Button
             create_lapse_button = (Button) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.no_ez_button);
             create_lapse_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -420,7 +418,6 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             File imgFile = new  File(getItem(position).getLatest());
             if(imgFile.exists()){
                 Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
-                //BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
                         findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big

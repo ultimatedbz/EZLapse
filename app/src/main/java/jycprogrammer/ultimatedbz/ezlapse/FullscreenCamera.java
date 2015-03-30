@@ -51,6 +51,7 @@ public class FullscreenCamera extends ActionBarActivity {
         public void onShutter(){
         }
     };
+
     private boolean firstPic = true;
     private boolean pictureTaken = false;
     private boolean alpha = true;
@@ -134,8 +135,9 @@ public class FullscreenCamera extends ActionBarActivity {
             filePath.setLength(0);
             boolean success = true;
             try{
-                String directory = Environment.getExternalStorageDirectory().getAbsolutePath()  + "/EZLapse/tmp/";
-                new File(directory).mkdirs();
+                String directory = EZdirectory + "tmp/";
+                File tmpF = new File(directory);
+                tmpF.mkdirs();
                 os = new FileOutputStream(directory + filename);
                 filePath.append(directory + filename);
                 os.write(data);
@@ -188,12 +190,9 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-
         mCamera = null;
 
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        Log.v("tracker", "current camera id on create: " + currentCameraId );
         setContentView(R.layout.activity_fullscreen_camera);
         mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
 
@@ -205,7 +204,6 @@ public class FullscreenCamera extends ActionBarActivity {
         switchOverlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("tracker","clicked on switch");
                 if(alpha)
                     mImageView.setAlpha(0.01f);
                 else{
@@ -349,7 +347,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     mCamera.stopPreview();
                     inPreview = false;
                 }
-                //NB: if you don't release the current camera before switching, you app will crash
+                /* if you don't release the current camera before switching, you app will crash */
                 mCamera.release();
 
                 //swap the id of the camera to be used
@@ -364,8 +362,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 Camera.getCameraInfo(1, camInfo);
                 int cameraRotationOffset = camInfo.orientation;
 
-                Log.v("tracker", "" + cameraRotationOffset);
-                /* Need to find better way of fixing camera orientation */
+                /* TODO Need to find better way of fixing camera orientation */
                 if (cameraRotationOffset == 270)
                     mCamera.setDisplayOrientation(90);
 
@@ -378,11 +375,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 else
                     p.set("rotation", 90);
                 p.setPictureFormat(PixelFormat.JPEG);
-                //p.setPreviewSize(p.getPictureSize().height, p.getPictureSize().width);// here w h are reversed
                 mCamera.setParameters(p);
 
-                //Code snippet for this method from somewhere on android developers, i forget where
-                //setCameraDisplayOrientation(FullscreenCamera.this, currentCameraId, mCamera);
+
                 try {
                     //this step is critical or preview on new camera will no know where to render to
                     mCamera.setPreviewDisplay(mSurfaceView.getHolder());
@@ -408,39 +403,40 @@ public class FullscreenCamera extends ActionBarActivity {
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         holder.addCallback(SHCallback);
-
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_fullscreen_camera, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
     @TargetApi(9)
     @Override
     public void onResume(){
         super.onResume();
+
         if (mCamera == null) {
-            mCamera = Camera.open(0);
-            mCamera.startPreview();
-            inPreview = true;
+            /* If left during confirm/cancel phase */
+            if(mView.findViewById(R.id.confirm_take).getVisibility() == View.VISIBLE){
+                mCamera = Camera.open(0);
+                mCamera.stopPreview();
+            }else {
+                mCamera = Camera.open(0);
+                mCamera.startPreview();
+                inPreview = true;
+            }
         }
     }
 
@@ -481,7 +477,7 @@ public class FullscreenCamera extends ActionBarActivity {
             returnIntent.putExtra(EXTRA_PASS, false);
             setResult(Activity.RESULT_OK, returnIntent);
         }
-            super.onBackPressed();
+        super.onBackPressed();
     }
 
     public byte[] flip(byte[] d)
