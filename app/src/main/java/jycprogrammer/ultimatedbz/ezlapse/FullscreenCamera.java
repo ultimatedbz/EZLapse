@@ -182,7 +182,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mImageView.setAlpha(0.01f);
                 alpha = false;
 
-            }else{
+            }else {
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
                 finish();
@@ -222,8 +222,7 @@ public class FullscreenCamera extends ActionBarActivity {
         cancelTakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCamera.startPreview();
-                inPreview = true;
+
                 mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
@@ -233,6 +232,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
                 mImageView.setAlpha(0.5f);
                 alpha = true;
+
+                mCamera.startPreview();
+                inPreview = true;
             }
         });
 
@@ -258,9 +260,9 @@ public class FullscreenCamera extends ActionBarActivity {
                                                         tempTitle + " already exists ",
                                                 Toast.LENGTH_SHORT);
                                         toast.show();
-                                        dialog.dismiss();
-                                        mCamera.startPreview();
-                                        inPreview = true;
+                                        //dialog.dismiss();
+                                        //mCamera.startPreview();
+                                        //inPreview = true;
                                         return;
                                     }
                                     LapseDir.mkdirs();
@@ -272,8 +274,6 @@ public class FullscreenCamera extends ActionBarActivity {
                                     LapseGallery.get(getApplicationContext()).getLapses().add(newLapse);
                                     dialog.dismiss();
 
-                                    mCamera.startPreview();
-                                    inPreview = true;
                                     pictureTaken = true;
                                     firstPic = false;
                                     mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
@@ -287,15 +287,16 @@ public class FullscreenCamera extends ActionBarActivity {
                                     mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
+
+                                    mCamera.startPreview();
+                                    inPreview = true;
                                 }
                             });
                     alertDialogBuilder.setNegativeButton(R.string.cancel,
                             new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void onClick(DialogInterface dialog, int which) {/*
                                     dialog.dismiss();
-                                    mCamera.startPreview();
-                                    inPreview = true;
 
                                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
@@ -304,14 +305,15 @@ public class FullscreenCamera extends ActionBarActivity {
                                     mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
+
+                                    mCamera.startPreview();
+                                    inPreview = true;*/
                                 }
                             });
                     alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            dialog.dismiss();
-                            mCamera.startPreview();
-                            inPreview = true;
+                           /* dialog.dismiss();
 
                             mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                             mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
@@ -320,6 +322,8 @@ public class FullscreenCamera extends ActionBarActivity {
                             mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                             mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                             mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
+                            mCamera.startPreview();
+                            inPreview = true;*/
                         }
                     });
 
@@ -376,7 +380,6 @@ public class FullscreenCamera extends ActionBarActivity {
         changeCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("tracker", "camera changed");
                 if (inPreview) {
                     mCamera.stopPreview();
                     inPreview = false;
@@ -465,7 +468,6 @@ public class FullscreenCamera extends ActionBarActivity {
             /* If left during confirm/cancel phase */
                 mCamera = Camera.open(0);
                 mCamera.startPreview();
-
         }
     }
 
