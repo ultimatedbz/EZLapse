@@ -36,6 +36,9 @@ import java.util.UUID;
 
 public class FullscreenCamera extends ActionBarActivity {
 
+    /* Member Variables */
+    /*Fix stretch*/
+
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
@@ -46,46 +49,46 @@ public class FullscreenCamera extends ActionBarActivity {
     private static boolean inPreview = false;
     private static int currentCameraId = -5;
     View mView;
-
-    private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback(){
-        public void onShutter(){
-        }
-    };
-
     private boolean firstPic = true;
     private boolean pictureTaken = false;
     private boolean alpha = true;
     private UUID mLapseId;
-    private ImageView mImageView;
+    private ImageView mOverlay;
     private final StringBuilder filePath = new StringBuilder("");
 
-    private SurfaceHolder.Callback SHCallback= new SurfaceHolder.Callback() {
+    private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+        public void onShutter() {
+        }
+    };
+
+
+    private SurfaceHolder.Callback SHCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-            try{
-                if(mCamera != null){
+            try {
+                if (mCamera != null) {
                     mCamera.setPreviewDisplay(holder);
                 }
-            }catch (IOException exception){
+            } catch (IOException exception) {
                 Log.e(TAG, "Error setting up preview display", exception);
             }
         }
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Log.v("tracker","surface changed");
+            Log.v("tracker", "surface changed");
             if (mCamera == null)
                 return;
 
             /* Geny motion front back both are 90
             *  Actual Android phones front = 270, back = 90*/
-            int cameraIndex = currentCameraId;
+
             Camera.CameraInfo camInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(1, camInfo);
             int cameraRotationOffset = camInfo.orientation;
 
                 /* Need to find better way of fixing camera orientation */
-            if( cameraRotationOffset == 270)
+            if (cameraRotationOffset == 270)
                 mCamera.setDisplayOrientation(90);
 
             Camera.Parameters p = mCamera.getParameters();
@@ -95,21 +98,25 @@ public class FullscreenCamera extends ActionBarActivity {
 
             p.setPictureFormat(PixelFormat.JPEG);
 
-            if( cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+            if (cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 p.set("rotation", 270);
             else
-                p.set("rotation",90);
+                p.set("rotation", 90);
             mCamera.setParameters(p);
-              /*In the future look at this http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
+            Log.v("tracker", "current width: " + p.getPreviewSize().width + " current height: " + p.getPreviewSize().height);
+            getBestSupportedSize(p.getSupportedPreviewSizes(), 0, 0);
+
+              /*In the future look at this for rotation
+               http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
               http://stackoverflow.com/questions/20064793/how-to-fix-camera-orientation
               http://stackoverflow.com/questions/11026615/captured-photo-orientation-is-changing-in-android/
               http://stackoverflow.com/questions/4645960/how-to-set-android-camera-orientation-properly  */
 
-            try{
+            try {
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
                 inPreview = true;
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "Could not start preview", e);
                 mCamera.release();
                 mCamera = null;
@@ -118,7 +125,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-            if( mCamera != null){
+            if (mCamera != null) {
                 mCamera.stopPreview();
                 inPreview = false;
             }
@@ -126,15 +133,15 @@ public class FullscreenCamera extends ActionBarActivity {
     };
 
 
-    private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback(){
+    private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+            if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 data = flip(data);
             String filename = UUID.randomUUID().toString() + ".jpg";
             FileOutputStream os = null;
             filePath.setLength(0);
             boolean success = true;
-            try{
+            try {
                 String directory = EZdirectory + "tmp/";
                 File tmpF = new File(directory);
                 tmpF.mkdirs();
@@ -142,18 +149,18 @@ public class FullscreenCamera extends ActionBarActivity {
                 filePath.append(directory + filename);
                 os.write(data);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "Error writing to file " + filename, e);
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
                         Toast.LENGTH_SHORT);
                 toast.show();
 
                 success = false;
-            }finally{
-                try{
-                    if(os != null)
+            } finally {
+                try {
+                    if (os != null)
                         os.close();
-                }catch( Exception e){
+                } catch (Exception e) {
                     Log.e(TAG, "Error closing the file " + filename, e);
                     Toast toast = Toast.makeText(getApplicationContext(), "Error closing the file " + filename,
                             Toast.LENGTH_SHORT);
@@ -163,7 +170,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 }
             }
 
-            if(success) {
+            if (success) {
 
                 mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
@@ -173,16 +180,16 @@ public class FullscreenCamera extends ActionBarActivity {
                 ((ImageView) mView.findViewById(R.id.preview_image_view))
                         .setImageBitmap(BitmapFactory.decodeFile(EZdirectory + "tmp/" + filename));
                 ((ImageView) mView.findViewById(R.id.preview_image_view))
-                    .setScaleType(ImageView.ScaleType.FIT_XY);
+                        .setScaleType(ImageView.ScaleType.FIT_XY);
                 mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.INVISIBLE);
 
-                if(!firstPic)
+                if (!firstPic)
                     mView.findViewById(R.id.switch_overlay).setVisibility(View.VISIBLE);
 
-                mImageView.setAlpha(0.01f);
+                mOverlay.setAlpha(0.01f);
                 alpha = false;
 
-            }else {
+            } else {
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
                 finish();
@@ -209,10 +216,10 @@ public class FullscreenCamera extends ActionBarActivity {
         switchOverlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(alpha)
-                    mImageView.setAlpha(0.01f);
-                else{
-                    mImageView.setAlpha(.5f);
+                if (alpha)
+                    mOverlay.setAlpha(0.01f);
+                else {
+                    mOverlay.setAlpha(.5f);
                 }
                 alpha = !alpha;
             }
@@ -230,7 +237,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
-                mImageView.setAlpha(0.5f);
+                mOverlay.setAlpha(0.5f);
                 alpha = true;
 
                 mCamera.startPreview();
@@ -242,7 +249,7 @@ public class FullscreenCamera extends ActionBarActivity {
         confirmTakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firstPic) {
+                if (firstPic) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FullscreenCamera.this);
                     final EditText textbox = new EditText(FullscreenCamera.this);
                     alertDialogBuilder.setTitle("Add a title to your EZLapse")
@@ -260,9 +267,6 @@ public class FullscreenCamera extends ActionBarActivity {
                                                         tempTitle + " already exists ",
                                                 Toast.LENGTH_SHORT);
                                         toast.show();
-                                        //dialog.dismiss();
-                                        //mCamera.startPreview();
-                                        //inPreview = true;
                                         return;
                                     }
                                     LapseDir.mkdirs();
@@ -276,9 +280,9 @@ public class FullscreenCamera extends ActionBarActivity {
 
                                     pictureTaken = true;
                                     firstPic = false;
-                                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
-                                    mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                                    mImageView.setAlpha(.5f);
+                                    mOverlay.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+                                    mOverlay.setScaleType(ImageView.ScaleType.FIT_XY);
+                                    mOverlay.setAlpha(.5f);
 
                                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
@@ -292,44 +296,10 @@ public class FullscreenCamera extends ActionBarActivity {
                                     inPreview = true;
                                 }
                             });
-                    alertDialogBuilder.setNegativeButton(R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {/*
-                                    dialog.dismiss();
-
-                                    mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
-                                    mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
-                                    mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
-                                    mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
-                                    mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
-                                    mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
-                                    mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
-
-                                    mCamera.startPreview();
-                                    inPreview = true;*/
-                                }
-                            });
-                    alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                           /* dialog.dismiss();
-
-                            mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
-                            mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
-                            mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
-                            mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
-                            mView.findViewById(R.id.change_camera).setVisibility(View.VISIBLE);
-                            mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
-                            mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
-                            mCamera.startPreview();
-                            inPreview = true;*/
-                        }
-                    });
 
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
-                }else{
+                } else {
                     Lapse currentLapse = LapseGallery.get(getApplicationContext()).getLapse(mLapseId);
                     String title = currentLapse.getTitle();
                     String number = currentLapse.getLatest().substring(currentLapse.getLatest().indexOf("-Photo") + 6, currentLapse.getLatest().indexOf(".jpg"));
@@ -340,10 +310,10 @@ public class FullscreenCamera extends ActionBarActivity {
                     currentLapse.add(new Photo(to.getPath(), new Date()));
                     pictureTaken = true;
 
-                    mImageView.setAlpha(.5f);
+                    mOverlay.setAlpha(.5f);
 
 
-                    mImageView.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+                    mOverlay.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
@@ -359,24 +329,23 @@ public class FullscreenCamera extends ActionBarActivity {
         });
 
 
-        mImageView = (ImageView) mView.findViewById(R.id.opaque_image_view);
-
-        if(getIntent().getExtras()!=null &&
-                    getIntent().getExtras().containsKey(EXTRA_LAPSE_ID))
-            {
+        mOverlay = (ImageView) mView.findViewById(R.id.opaque_image_view);
+        // Sets the overlay to the latest lapse
+        if (getIntent().getExtras() != null &&
+                getIntent().getExtras().containsKey(EXTRA_LAPSE_ID)) {
             firstPic = false;
             mLapseId = (UUID) getIntent().getExtras().getSerializable(EXTRA_LAPSE_ID);
             File imgFile = new File(LapseGallery.get(getApplicationContext()).getLapse(mLapseId)
                     .getLatest());
-            if(imgFile.exists()){
+            if (imgFile.exists()) {
 
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                mImageView.setImageBitmap(myBitmap);
-                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                mOverlay.setImageBitmap(myBitmap);
+                mOverlay.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }
-                mImageView.setAlpha(.5f);
+            mOverlay.setAlpha(.5f);
         }
 
         ImageButton changeCamera = (ImageButton) mView.findViewById(R.id.change_camera);
@@ -433,12 +402,12 @@ public class FullscreenCamera extends ActionBarActivity {
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mCamera != null)
+                if (mCamera != null)
                     mCamera.takePicture(mShutterCallback, null, mJpegCallback);
             }
         });
 
-        mSurfaceView = (SurfaceView) mView. findViewById(R.id.lapse_camera_surfaceView);
+        mSurfaceView = (SurfaceView) mView.findViewById(R.id.lapse_camera_surfaceView);
         SurfaceHolder holder = mSurfaceView.getHolder();
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
@@ -464,32 +433,33 @@ public class FullscreenCamera extends ActionBarActivity {
 
     @TargetApi(9)
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         if (mCamera == null) {
             /* If left during confirm/cancel phase */
-                mCamera = Camera.open(0);
-                mCamera.startPreview();
+            mCamera = Camera.open(0);
+            mCamera.startPreview();
         }
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
-        if(mCamera != null){
+        if (mCamera != null) {
             mCamera.release();
             mCamera = null;
         }
     }
 
 
-    private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height){
+    private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height) {
         Camera.Size bestSize = sizes.get(0);
         int largestArea = bestSize.width * bestSize.height;
-        for(Camera.Size s : sizes){
-            int area = s.width *s.height;
-            if (area > largestArea){
+        for (Camera.Size s : sizes) {
+            Log.v("tracker", "width: " + s.width + " height: " + s.height);
+            int area = s.width * s.height;
+            if (area > largestArea) {
                 bestSize = s;
                 largestArea = area;
             }
@@ -499,14 +469,12 @@ public class FullscreenCamera extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        if(pictureTaken)
-        {
+        if (pictureTaken) {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(EXTRA_PASS, true);
             returnIntent.putExtra(EXTRA_LAPSE_ID, mLapseId);
             setResult(Activity.RESULT_OK, returnIntent);
-        }
-        else{
+        } else {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(EXTRA_PASS, false);
             setResult(Activity.RESULT_OK, returnIntent);
@@ -514,8 +482,7 @@ public class FullscreenCamera extends ActionBarActivity {
         super.onBackPressed();
     }
 
-    public byte[] flip(byte[] d)
-    {
+    public byte[] flip(byte[] d) {
         /* Make bitmap*/
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inMutable = true;
@@ -532,4 +499,6 @@ public class FullscreenCamera extends ActionBarActivity {
         dst.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         return bos.toByteArray();
     }
+
+
 }
