@@ -43,7 +43,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
 
     private CameraSurfaceView mSurfaceView;
-    public static boolean inPreview = false;
+    public static boolean inPreview = true; //janky but it's for first camera to not go in preview mode
     public static int currentCameraId = -5;
     View mView;
     private boolean firstPic = true;
@@ -362,25 +362,35 @@ public class FullscreenCamera extends ActionBarActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.v("tracker", "resume");
+
         if (mSurfaceView.mCamera == null) {
-            Log.v("tracker", "here");
+            Log.v("tracker", "resume");
             /* If left during confirm/cancel phase */
             mSurfaceView.setCamera(Camera.open(0));
-            //mSurfaceView.mCamera.startPreview();
-            //mSurfaceView.surfaceChanged();
+            if(!inPreview) {
+                Log.v("tracker", "start prev");
+                mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);
+            }
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.v("tracker", "onPause");
         if (mSurfaceView.mCamera != null) {
             mSurfaceView.mCamera.release();
             mSurfaceView.mCamera = null;
+            inPreview = false;
+            Log.v("tracker", "end prev");
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v("tracker", "onDestroy");
+    }
 
     @Override
     public void onBackPressed() {
