@@ -17,8 +17,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -30,7 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -44,10 +41,10 @@ public class FullscreenCamera extends ActionBarActivity {
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
     private final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
-    private Camera mCamera;
-    private SurfaceView mSurfaceView;
-    private static boolean inPreview = false;
-    private static int currentCameraId = -5;
+
+    private CameraSurfaceView mSurfaceView;
+    public static boolean inPreview = false;
+    public static int currentCameraId = -5;
     View mView;
     private boolean firstPic = true;
     private boolean pictureTaken = false;
@@ -61,76 +58,6 @@ public class FullscreenCamera extends ActionBarActivity {
         }
     };
 
-
-    private SurfaceHolder.Callback SHCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                if (mCamera != null) {
-                    mCamera.setPreviewDisplay(holder);
-                }
-            } catch (IOException exception) {
-                Log.e(TAG, "Error setting up preview display", exception);
-            }
-        }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Log.v("tracker", "surface changed");
-            if (mCamera == null)
-                return;
-
-            /* Geny motion front back both are 90
-            *  Actual Android phones front = 270, back = 90*/
-
-            Camera.CameraInfo camInfo = new Camera.CameraInfo();
-            Camera.getCameraInfo(1, camInfo);
-            int cameraRotationOffset = camInfo.orientation;
-
-                /* Need to find better way of fixing camera orientation */
-            if (cameraRotationOffset == 270)
-                mCamera.setDisplayOrientation(90);
-
-            Camera.Parameters p = mCamera.getParameters();
-
-            p.set("jpeg-quality", 100);
-            //p.set("orientation", "landscape");
-
-            p.setPictureFormat(PixelFormat.JPEG);
-
-            if (cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
-                p.set("rotation", 270);
-            else
-                p.set("rotation", 90);
-            mCamera.setParameters(p);
-            Log.v("tracker", "current width: " + p.getPreviewSize().width + " current height: " + p.getPreviewSize().height);
-            getBestSupportedSize(p.getSupportedPreviewSizes(), 0, 0);
-
-              /*In the future look at this for rotation
-               http://stackoverflow.com/questions/6069122/camera-orientation-issue-in-android
-              http://stackoverflow.com/questions/20064793/how-to-fix-camera-orientation
-              http://stackoverflow.com/questions/11026615/captured-photo-orientation-is-changing-in-android/
-              http://stackoverflow.com/questions/4645960/how-to-set-android-camera-orientation-properly  */
-
-            try {
-                mCamera.setPreviewDisplay(holder);
-                mCamera.startPreview();
-                inPreview = true;
-            } catch (Exception e) {
-                Log.e(TAG, "Could not start preview", e);
-                mCamera.release();
-                mCamera = null;
-            }
-        }
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            if (mCamera != null) {
-                mCamera.stopPreview();
-                inPreview = false;
-            }
-        }
-    };
 
 
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
@@ -202,11 +129,15 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        mCamera = null;
+
 
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         setContentView(R.layout.activity_fullscreen_camera);
         mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
+
+        mView.findViewById(R.id.lapse_camera_surfaceView);
+        mSurfaceView = (CameraSurfaceView) mView.findViewById(R.id.lapse_camera_surfaceView);
+        mSurfaceView.mCamera = null;
 
         mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
         mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
@@ -240,7 +171,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 mOverlay.setAlpha(0.5f);
                 alpha = true;
 
-                mCamera.startPreview();
+                mSurfaceView.mCamera.startPreview();
                 inPreview = true;
             }
         });
@@ -292,7 +223,7 @@ public class FullscreenCamera extends ActionBarActivity {
                                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
 
-                                    mCamera.startPreview();
+                                    mSurfaceView.mCamera.startPreview();
                                     inPreview = true;
                                 }
                             });
@@ -322,7 +253,7 @@ public class FullscreenCamera extends ActionBarActivity {
                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
 
-                    mCamera.startPreview();
+                    mSurfaceView.mCamera.startPreview();
                     inPreview = true;
                 }
             }
@@ -353,11 +284,11 @@ public class FullscreenCamera extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (inPreview) {
-                    mCamera.stopPreview();
+                    mSurfaceView.mCamera.stopPreview();
                     inPreview = false;
                 }
                 /* if you don't release the current camera before switching, you app will crash */
-                mCamera.release();
+                mSurfaceView.mCamera.release();
 
                 //swap the id of the camera to be used
                 if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
@@ -365,7 +296,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 } else {
                     currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
-                mCamera = Camera.open(currentCameraId);
+                mSurfaceView.setCamera(Camera.open(currentCameraId));
 
                 Camera.CameraInfo camInfo = new Camera.CameraInfo();
                 Camera.getCameraInfo(1, camInfo);
@@ -373,9 +304,9 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 /* TODO Need to find better way of fixing camera orientation */
                 if (cameraRotationOffset == 270)
-                    mCamera.setDisplayOrientation(90);
+                    mSurfaceView.mCamera.setDisplayOrientation(90);
 
-                Camera.Parameters p = mCamera.getParameters();
+                Camera.Parameters p = mSurfaceView.mCamera.getParameters();
 
                 p.set("jpeg-quality", 100);
                 //p.set("orientation", "landscape");
@@ -384,16 +315,16 @@ public class FullscreenCamera extends ActionBarActivity {
                 else
                     p.set("rotation", 90);
                 p.setPictureFormat(PixelFormat.JPEG);
-                mCamera.setParameters(p);
+                mSurfaceView.mCamera.setParameters(p);
 
 
                 try {
                     //this step is critical or preview on new camera will no know where to render to
-                    mCamera.setPreviewDisplay(mSurfaceView.getHolder());
+                    mSurfaceView.mCamera.setPreviewDisplay(mSurfaceView.getHolder());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                mCamera.startPreview();
+                mSurfaceView.mCamera.startPreview();
                 inPreview = true;
             }
         });
@@ -402,16 +333,12 @@ public class FullscreenCamera extends ActionBarActivity {
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCamera != null)
-                    mCamera.takePicture(mShutterCallback, null, mJpegCallback);
+                if (mSurfaceView.mCamera != null)
+                    mSurfaceView.mCamera.takePicture(mShutterCallback, null, mJpegCallback);
             }
         });
 
-        mSurfaceView = (SurfaceView) mView.findViewById(R.id.lapse_camera_surfaceView);
-        SurfaceHolder holder = mSurfaceView.getHolder();
-        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        holder.addCallback(SHCallback);
     }
 
 
@@ -435,37 +362,25 @@ public class FullscreenCamera extends ActionBarActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        if (mCamera == null) {
+        Log.v("tracker", "resume");
+        if (mSurfaceView.mCamera == null) {
+            Log.v("tracker", "here");
             /* If left during confirm/cancel phase */
-            mCamera = Camera.open(0);
-            mCamera.startPreview();
+            mSurfaceView.setCamera(Camera.open(0));
+            //mSurfaceView.mCamera.startPreview();
+            //mSurfaceView.surfaceChanged();
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mCamera != null) {
-            mCamera.release();
-            mCamera = null;
+        if (mSurfaceView.mCamera != null) {
+            mSurfaceView.mCamera.release();
+            mSurfaceView.mCamera = null;
         }
     }
 
-
-    private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, int width, int height) {
-        Camera.Size bestSize = sizes.get(0);
-        int largestArea = bestSize.width * bestSize.height;
-        for (Camera.Size s : sizes) {
-            Log.v("tracker", "width: " + s.width + " height: " + s.height);
-            int area = s.width * s.height;
-            if (area > largestArea) {
-                bestSize = s;
-                largestArea = area;
-            }
-        }
-        return bestSize;
-    }
 
     @Override
     public void onBackPressed() {
@@ -499,6 +414,4 @@ public class FullscreenCamera extends ActionBarActivity {
         dst.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         return bos.toByteArray();
     }
-
-
 }

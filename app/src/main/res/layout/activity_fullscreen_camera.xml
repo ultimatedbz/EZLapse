@@ -3,7 +3,7 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
                  android:orientation="vertical">
-        <SurfaceView
+        <jycprogrammer.ultimatedbz.ezlapse.CameraSurfaceView
             android:id="@+id/lapse_camera_surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
