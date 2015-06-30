@@ -390,6 +390,7 @@ public class FullscreenCamera extends ActionBarActivity {
     public void onDestroy() {
         super.onDestroy();
         Log.v("tracker", "onDestroy");
+        inPreview = true;
     }
 
     @Override
