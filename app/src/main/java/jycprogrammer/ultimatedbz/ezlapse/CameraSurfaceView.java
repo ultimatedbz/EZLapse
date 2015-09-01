@@ -164,6 +164,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         Camera.Parameters p = mCamera.getParameters();
 
         p.set("jpeg-quality", 100);
+        p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
 
         p.setPictureFormat(PixelFormat.JPEG);
 
