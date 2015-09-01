@@ -49,6 +49,12 @@
             android:theme="@style/AppTheme" >
         </activity>
         <activity
+            android:name=".ViewPagerFragmentActivity"
+            android:label="title_activity_view_pager_fragment"
+            android:parentActivityName=".PhotoGridActivity"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        <activity
             android:name=".PhotoSlideshowActivity"
             android:label="@string/title_activity_photo_slideshow"
             android:parentActivityName=".PhotoGridActivity"

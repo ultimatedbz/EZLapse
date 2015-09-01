@@ -37,6 +37,7 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
     private GridView mGrid;
     private static final String DIALOG_IMAGE = "image";
     private DeletePhotoAdapter deleteAdapter;
+    private static final int REQUEST_DISPLAY = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +112,15 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
                 @Override
                 public void onClick(View v) {
 
-                android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-                ImageFragment.newInstance(getItem(p).getFilePath()).show(fm,DIALOG_IMAGE);
-                }
+                /**
+                * Starts an activity that lets users slide between pictures
+                * */
+                 Intent i = new Intent(PhotoGridActivity.this, ViewPagerFragmentActivity.class);
+                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_PHOTO_POSITION,p);
+                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_ID, mLapseId);
+
+                startActivityForResult(i, REQUEST_DISPLAY);
+                 }
             });
 
            return convertView;

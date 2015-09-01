@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,7 +25,6 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -62,6 +60,7 @@ public class FullscreenCamera extends ActionBarActivity {
 
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
+
             if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 data = flip(data);
             String filename = UUID.randomUUID().toString() + ".jpg";
@@ -75,6 +74,31 @@ public class FullscreenCamera extends ActionBarActivity {
                 os = new FileOutputStream(directory + filename);
                 filePath.append(directory + filename);
                 os.write(data);
+
+
+                /*
+                os.close();
+
+                os = new FileOutputStream(directory + filename);
+                Bitmap realImage = BitmapFactory.decodeByteArray(data , 0, data.length);
+
+                ExifInterface exif=new ExifInterface(filePath.toString());
+
+                Log.d("tracker", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+
+
+
+                if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
+
+                    realImage=rotate(realImage, 90);
+                }else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
+                    realImage=rotate(realImage, 180);
+                }else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")){
+                    realImage=rotate(realImage, 180);
+                }
+
+                realImage.compress(Bitmap.CompressFormat.JPEG, 100, os);
+*/
 
             } catch (Exception e) {
                 Log.e(TAG, "Error writing to file " + filename, e);
@@ -297,12 +321,13 @@ public class FullscreenCamera extends ActionBarActivity {
                     currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
                 mSurfaceView.setCamera(Camera.open(currentCameraId));
-
+                mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);
+/*
                 Camera.CameraInfo camInfo = new Camera.CameraInfo();
                 Camera.getCameraInfo(1, camInfo);
                 int cameraRotationOffset = camInfo.orientation;
 
-                /* TODO Need to find better way of fixing camera orientation */
+                /* TODO Need to find better way of fixing camera orientation *
                 if (cameraRotationOffset == 270)
                     mSurfaceView.mCamera.setDisplayOrientation(90);
 
@@ -326,6 +351,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 }
                 mSurfaceView.mCamera.startPreview();
                 inPreview = true;
+
+                */
+
             }
         });
 
@@ -425,4 +453,15 @@ public class FullscreenCamera extends ActionBarActivity {
         dst.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         return bos.toByteArray();
     }
+
+    public Bitmap rotate(Bitmap bitmap, int degree) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix mtx = new Matrix();
+        mtx.postRotate(degree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
+    }
+
 }
