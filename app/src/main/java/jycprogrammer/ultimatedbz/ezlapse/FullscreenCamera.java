@@ -61,6 +61,10 @@ public class FullscreenCamera extends ActionBarActivity {
 
     private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
+            /* This is put here because in Samsungs, shuttercallback calls stop preview. and
+            then we need to start the preview before we make the surfaceview invisible*/
+            mSurfaceView.mCamera.startPreview();
+            inPreview = true;
 
             if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
                 data = flip(data);
@@ -75,15 +79,9 @@ public class FullscreenCamera extends ActionBarActivity {
                 os = new FileOutputStream(directory + filename);
                 filePath.append(directory + filename);
                 os.write(data);
-
                 os.close();
+
                 ExifInterface exif=new ExifInterface(filePath.toString());
-
-
-                Log.d("tracker", "orientation: " +exif.getAttribute(ExifInterface.TAG_ORIENTATION));
-                Log.d("tracker", "path: "+ filePath.toString());
-
-
                 Bitmap realImage = BitmapFactory.decodeByteArray(data , 0, data.length);
 
                 if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
@@ -96,7 +94,6 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 if(!exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("1")) {
                     os = new FileOutputStream(directory + filename);
-                    Log.d("tracker", "1");
                     realImage.compress(Bitmap.CompressFormat.JPEG, 100, os);
                     os.flush();
                     os.close();
@@ -196,9 +193,6 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
                 mOverlay.setAlpha(0.5f);
                 alpha = true;
-
-                mSurfaceView.mCamera.startPreview();
-                inPreview = true;
             }
         });
 
@@ -249,8 +243,6 @@ public class FullscreenCamera extends ActionBarActivity {
                                     mView.findViewById(R.id.preview_image_view).setVisibility(View.INVISIBLE);
                                     mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.VISIBLE);
 
-                                    mSurfaceView.mCamera.startPreview();
-                                    inPreview = true;
                                 }
                             });
 
@@ -324,38 +316,6 @@ public class FullscreenCamera extends ActionBarActivity {
                 }
                 mSurfaceView.setCamera(Camera.open(currentCameraId));
                 mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);
-/*
-                Camera.CameraInfo camInfo = new Camera.CameraInfo();
-                Camera.getCameraInfo(1, camInfo);
-                int cameraRotationOffset = camInfo.orientation;
-
-                /* TODO Need to find better way of fixing camera orientation *
-                if (cameraRotationOffset == 270)
-                    mSurfaceView.mCamera.setDisplayOrientation(90);
-
-                Camera.Parameters p = mSurfaceView.mCamera.getParameters();
-
-                p.set("jpeg-quality", 100);
-                //p.set("orientation", "landscape");
-                if (cameraRotationOffset == 270 && currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
-                    p.set("rotation", 270);
-                else
-                    p.set("rotation", 90);
-                p.setPictureFormat(PixelFormat.JPEG);
-                mSurfaceView.mCamera.setParameters(p);
-
-
-                try {
-                    //this step is critical or preview on new camera will no know where to render to
-                    mSurfaceView.mCamera.setPreviewDisplay(mSurfaceView.getHolder());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                mSurfaceView.mCamera.startPreview();
-                inPreview = true;
-
-                */
-
             }
         });
 
@@ -363,8 +323,9 @@ public class FullscreenCamera extends ActionBarActivity {
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mSurfaceView.mCamera != null)
+                if (mSurfaceView.mCamera != null) {
                     mSurfaceView.mCamera.takePicture(mShutterCallback, null, mJpegCallback);
+                }
             }
         });
 

@@ -62,7 +62,8 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         // We purposely disregard child measurements because act as a
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
-        Log.v("tracker", "onMeasure" + widthMeasureSpec + " " + heightMeasureSpec);
+
+        Log.v("tracker", "onMeasure: bad");
         final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
 
@@ -78,7 +79,6 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
         // One of these methods should be used, second method squishes preview slightly
         setMeasuredDimension(width, (int) (width * ratio));
-
     }
 
 
@@ -171,7 +171,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
             mCamera.setPreviewDisplay(holder);
             Log.v("tracker", "start preview");
             mCamera.startPreview();
-            Log.v("tracker", "preview started");
+            Log.v("tracker", "preview started: bad");
             FullscreenCamera.inPreview = true;
         } catch (Exception e) {
             Log.e(TAG, "Could not start preview", e);
