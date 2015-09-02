@@ -156,15 +156,19 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     @Override
     public boolean onSearchRequested() {
-        Log.v("Search Requested", "Search was invoked");
+        Log.v("tracker", "Search was invoked");
         return super.onSearchRequested();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.v("tracker", "onnewintent");
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             ArrayList<Lapse> stuff = doSearch(query);
+            Log.v("tracker", "inside the loop");
+            for(Lapse l:stuff)
+                Log.v("tracker",l.getTitle());
             updateView(stuff);
         }
     }
@@ -302,7 +306,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     }
 
     private void updateView(){
-        if(mCurrentList.size() > 0) {
+        if(mCurrentList.size() > 0) { // filtered lapses or all lapses
             setContentView(R.layout.activity_there_are_lapses_grid);
             the_grid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
             Collections.sort(mCurrentList, new CustomComparator());
@@ -332,9 +336,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         }
                     });
                 }
-        }else if(mCurrentList.size() != mLapseGallery.size()) {
+        }else if(mCurrentList.size() != mLapseGallery.size()) { // no search results but there is at least one lapse
             onBackPressed();
-        }else{
+        }else{ // no lapses at all
             setContentView(jycprogrammer.ultimatedbz.ezlapse.R.layout.activity_there_are_no_lapses);
             create_lapse_button = (Button) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.no_ez_button);
             create_lapse_button.setOnClickListener(new View.OnClickListener() {
@@ -362,8 +366,8 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     public void onActivityResult( int requestCode, int resultCode, Intent data){
         if(resultCode != Activity.RESULT_OK) return;
-        if(requestCode == REQUEST_PHOTO){
-            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) {
+        if(requestCode == REQUEST_PHOTO){ //just finished taking a photo
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) { // if a picture was actually taken, jump to the corresponding grid
 
                 Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                 UUID id = (UUID) data.getExtras().getSerializable(FullscreenCamera.EXTRA_LAPSE_ID);
@@ -372,9 +376,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 updateView();
             }
         }
-        if( requestCode == REQUEST_GRID) {
+        if( requestCode == REQUEST_GRID) { // just returned from grid
 
-            if(data.getBooleanExtra(PhotoGridActivity.EXTRA_EMPTY_LAPSE, false))
+            if(data.getBooleanExtra(PhotoGridActivity.EXTRA_EMPTY_LAPSE, false)) // since we can delete from grid, if the whole lapse has no more photos, delete it
             {
                 UUID id = (UUID) data.getExtras().getSerializable(PhotoGridActivity.EXTRA_LAPSE_ID);
                 Lapse it = LapseGallery.get(LapseGridActivity.this).getLapse(id);

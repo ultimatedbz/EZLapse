@@ -79,23 +79,6 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         // One of these methods should be used, second method squishes preview slightly
         setMeasuredDimension(width, (int) (width * ratio));
 
-/*
-        float camHeight = (int) (width * ratio);
-        float newCamHeight;
-        float newHeightRatio;
-
-        if (camHeight < height) {
-            newHeightRatio = (float) height / (float) camHeight;
-            newCamHeight = (newHeightRatio * camHeight);
-            //Log.e(TAG, camHeight + " " + height + " " + mPreviewSize.height + " " + newHeightRatio + " " + newCamHeight);
-            setMeasuredDimension((int) (width * newHeightRatio), (int) newCamHeight);
-            //Log.e(TAG, mPreviewSize.width + " | " + mPreviewSize.height + " | ratio - " + ratio + " | H_ratio - " + newHeightRatio + " | A_width - " + (width * newHeightRatio) + " | A_height - " + newCamHeight);
-        } else {
-            newCamHeight = camHeight;
-            setMeasuredDimension(width, (int) newCamHeight);
-            //Log.e(TAG, mPreviewSize.width + " | " + mPreviewSize.height + " | ratio - " + ratio + " | A_width - " + (width) + " | A_height - " + newCamHeight);
-        }
-*/
     }
 
 
@@ -158,21 +141,20 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         int cameraRotationOffset = camInfo.orientation;
 
         /* Need to find better way of fixing camera orientation */
-        if (cameraRotationOffset == 270)
+        if (cameraRotationOffset == 270 || cameraRotationOffset == 0)  // 0 for samsung
             mCamera.setDisplayOrientation(90);
 
         Camera.Parameters p = mCamera.getParameters();
-
         p.set("jpeg-quality", 100);
-        p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-
+        // check focus mode with getSupportedFocusModes() to see if the camera supports focusmodecontinuouspicture
+        //p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        Log.v("tracker", "camera rotation: "+cameraRotationOffset);
         p.setPictureFormat(PixelFormat.JPEG);
-
+        
         if (cameraRotationOffset == 270 && FullscreenCamera.currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
             p.set("rotation", 270);
         else
             p.set("rotation", 90);
-
 
         Log.v("tracker", mPreviewSize.width + " " + mPreviewSize.height);
         p.setPreviewSize(mPreviewSize.width, mPreviewSize.height);

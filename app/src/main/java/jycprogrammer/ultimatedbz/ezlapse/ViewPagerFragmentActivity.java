@@ -16,6 +16,9 @@ import java.util.UUID;
 
 /**
  * Created by jeffreychen on 8/31/15.
+ *
+ *  Used to swipe between photos in the Grid View
+ *
  */
 public class ViewPagerFragmentActivity extends FragmentActivity {
     public static final String EXTRA_LAPSE_ID = "The ID of the lapse clicked";

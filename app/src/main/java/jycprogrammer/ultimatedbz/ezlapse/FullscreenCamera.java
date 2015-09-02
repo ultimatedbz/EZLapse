@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -75,21 +76,17 @@ public class FullscreenCamera extends ActionBarActivity {
                 filePath.append(directory + filename);
                 os.write(data);
 
-
-                /*
                 os.close();
-
-                os = new FileOutputStream(directory + filename);
-                Bitmap realImage = BitmapFactory.decodeByteArray(data , 0, data.length);
-
                 ExifInterface exif=new ExifInterface(filePath.toString());
 
-                Log.d("tracker", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+
+                Log.d("tracker", "orientation: " +exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+                Log.d("tracker", "path: "+ filePath.toString());
 
 
+                Bitmap realImage = BitmapFactory.decodeByteArray(data , 0, data.length);
 
                 if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
-
                     realImage=rotate(realImage, 90);
                 }else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
                     realImage=rotate(realImage, 180);
@@ -97,9 +94,14 @@ public class FullscreenCamera extends ActionBarActivity {
                     realImage=rotate(realImage, 180);
                 }
 
-                realImage.compress(Bitmap.CompressFormat.JPEG, 100, os);
-*/
+                if(!exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("1")) {
+                    os = new FileOutputStream(directory + filename);
+                    Log.d("tracker", "1");
+                    realImage.compress(Bitmap.CompressFormat.JPEG, 100, os);
+                    os.flush();
+                    os.close();
 
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Error writing to file " + filename, e);
                 Toast toast = Toast.makeText(getApplicationContext(), "Error writing to file " + filename,
@@ -122,7 +124,7 @@ public class FullscreenCamera extends ActionBarActivity {
             }
 
             if (success) {
-
+                Log.d("tracker", "success "+ EZdirectory + "tmp/" + filename);
                 mView.findViewById(R.id.cancel_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.confirm_take).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
@@ -141,6 +143,7 @@ public class FullscreenCamera extends ActionBarActivity {
                 alpha = false;
 
             } else {
+                Log.d("tracker", "fail");
                 Intent returnIntent = new Intent();
                 setResult(RESULT_CANCELED, returnIntent);
                 finish();
@@ -153,7 +156,6 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
 
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         setContentView(R.layout.activity_fullscreen_camera);
