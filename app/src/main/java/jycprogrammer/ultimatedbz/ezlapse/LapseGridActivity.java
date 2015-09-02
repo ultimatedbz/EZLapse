@@ -109,7 +109,11 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 startActivityForResult(i, REQUEST_PHOTO);
                 return true;
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_search:
-                onSearchRequested();
+                if(onSearchRequested())
+                    Log.v("tracker","searched");
+                else
+                    Log.v("tracer", "not searched");
+
                 return true;
             case jycprogrammer.ultimatedbz.ezlapse.R.id.action_delete:
                 //supportInvalidateOptionsMenu();
@@ -176,6 +180,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     private ArrayList<Lapse> doSearch(String query)
     {
+        Log.v("tracker","doSearch");
         ArrayList<Lapse> ret = new ArrayList<Lapse>();
         for(Lapse a : mLapseGallery)
         {

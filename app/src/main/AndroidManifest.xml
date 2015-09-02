@@ -23,7 +23,9 @@
 
 
         <activity
-            android:name=".LapseGridActivity">
+            android:name=".LapseGridActivity"
+            android:launchMode="singleTop">
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
