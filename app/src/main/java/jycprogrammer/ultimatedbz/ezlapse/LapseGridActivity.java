@@ -166,13 +166,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.v("tracker", "onnewintent");
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             ArrayList<Lapse> stuff = doSearch(query);
-            Log.v("tracker", "inside the loop");
-            for(Lapse l:stuff)
-                Log.v("tracker",l.getTitle());
             updateView(stuff);
         }
     }
@@ -282,8 +278,9 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         @Override
             protected View getViewImpl(int position, View convertView, ViewGroup parent) {
             if(convertView == null) {
-                convertView = LapseGridActivity.this.getLayoutInflater().
-                inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.delete_lapse_icon_layout, parent, false);
+                convertView = LapseGridActivity.this.getLayoutInflater()
+                .inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.delete_lapse_icon_layout, parent, false);
+                //inflate(R.layout.delete_lapse_icon_layout, parent, false);
             }
 
             /* Displays latest picture*/
@@ -324,20 +321,31 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
+/*
                         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_GRID);
+*/
+                        deleteAdapter = new DeleteLapseAdapter(LapseGridActivity.this, null, mCurrentList);
+                        deleteAdapter.setAdapterView(the_grid);
 
+                        deleteAdapter.setOnItemClickListener(LapseGridActivity.this);
+                        the_grid.performItemClick(view, position, id);
                         return true;
                     }
                 });
                 the_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        /*
                         Intent i = new Intent(LapseGridActivity.this, FullscreenCamera.class);
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
+                        */
+
+                        Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
+                        i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
+                        startActivityForResult(i, REQUEST_GRID);
                         }
                     });
                 }

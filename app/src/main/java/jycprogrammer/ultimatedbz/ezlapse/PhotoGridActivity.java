@@ -54,10 +54,23 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
         }else{
             finish();
         }
+        updateView();
+        /*
         setContentView(R.layout.activity_photo_grid);
         mGrid = (GridView) findViewById(R.id.photo_grid);
         PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
         mGrid.setAdapter(adapter);
+        mGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                deleteAdapter = new DeletePhotoAdapter(PhotoGridActivity.this, null, mPhotoGallery);
+                deleteAdapter.setAdapterView(mGrid);
+
+                deleteAdapter.setOnItemClickListener(PhotoGridActivity.this);
+                return true;
+            }
+        });
+        */
     }
 
     public void onItemClick(android.widget.AdapterView<?> adapterView, View view, int position, long id) {
@@ -107,21 +120,21 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
                     findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
 
-            final int p = position;
+            final int p = position;/*
             picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                 /**
                 * Starts an activity that lets users slide between pictures
-                * */
+                * *
                  Intent i = new Intent(PhotoGridActivity.this, ViewPagerFragmentActivity.class);
                 i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_PHOTO_POSITION,p);
                 i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_ID, mLapseId);
 
                 startActivityForResult(i, REQUEST_DISPLAY);
                  }
-            });
+            });*/
 
            return convertView;
         }
@@ -172,6 +185,8 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             updateView();
+            setTitle(LapseGallery.get(getApplicationContext()).
+                    getLapse(mLapseId).getTitle());
         }
 
         @Override
@@ -268,6 +283,18 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
         }else {
             PhotoAdapter adapter = new PhotoAdapter(mPhotoGallery);
             mGrid.setAdapter(adapter);
+            mGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    Log.v("tracker", "photo long click");
+                    deleteAdapter = new DeletePhotoAdapter(PhotoGridActivity.this, null, mPhotoGallery);
+                    deleteAdapter.setAdapterView(mGrid);
+
+                    deleteAdapter.setOnItemClickListener(PhotoGridActivity.this);
+                    mGrid.performItemClick(view, position, id);
+                    return true;
+                }
+            });
         }
     }
 }

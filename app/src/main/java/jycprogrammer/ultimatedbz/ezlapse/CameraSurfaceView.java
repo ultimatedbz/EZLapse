@@ -146,8 +146,11 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
         Camera.Parameters p = mCamera.getParameters();
         p.set("jpeg-quality", 100);
-        // check focus mode with getSupportedFocusModes() to see if the camera supports focusmodecontinuouspicture
-        //p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        // checks focus mode with getSupportedFocusModes() to see if the camera supports focusmodecontinuouspicture
+        List<String> l = p.getSupportedFocusModes();
+
+        if(l.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
+            p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         Log.v("tracker", "camera rotation: "+cameraRotationOffset);
         p.setPictureFormat(PixelFormat.JPEG);
         
@@ -169,9 +172,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
         try {
             mCamera.setPreviewDisplay(holder);
-            Log.v("tracker", "start preview");
             mCamera.startPreview();
-            Log.v("tracker", "preview started: bad");
             FullscreenCamera.inPreview = true;
         } catch (Exception e) {
             Log.e(TAG, "Could not start preview", e);
