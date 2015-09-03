@@ -5,6 +5,10 @@
           android:title="Show as Slide Show"
           android:orderInCategory="1"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_new_photo"
+          android:icon="@drawable/ic_action_new"
+          android:title="Add New"
+          app:showAsAction="ifRoom"/>
     <item android:id="@id/action_delete"
           android:title="Delete"
           android:orderInCategory="2"

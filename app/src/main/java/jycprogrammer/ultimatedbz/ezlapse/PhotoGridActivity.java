@@ -1,5 +1,6 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +32,7 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
 
     public static final String EXTRA_LAPSE_ID = "The ID of the lapse clicked";
     public static final String EXTRA_EMPTY_LAPSE = "The Lapse is now empty";
+    private static final int REQUEST_PHOTO = 0;
 
     private ArrayList<Photo> mPhotoGallery;
     private UUID mLapseId;
@@ -98,6 +100,12 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
                 deleteAdapter.setAdapterView(mGrid);
 
                 deleteAdapter.setOnItemClickListener(this);
+                return true;
+            case jycprogrammer.ultimatedbz.ezlapse.R.id.action_new_photo:
+
+                Intent i = new Intent(PhotoGridActivity.this, FullscreenCamera.class);
+                i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mLapseId);
+                startActivityForResult(i, REQUEST_PHOTO);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -297,4 +305,15 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
             });
         }
     }
+
+    public void onActivityResult( int requestCode, int resultCode, Intent data){
+        if(resultCode != Activity.RESULT_OK) return;
+        if(requestCode == REQUEST_PHOTO){ //just finished taking a photo
+            if((Boolean) data.getBooleanExtra(FullscreenCamera.EXTRA_PASS, false)) { // if a picture was actually taken, jump to the corresponding grid
+                mGrid.invalidateViews();
+            }
+        }
+
+    }
 }
+

@@ -321,11 +321,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-/*
-                        Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
-                        i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
-                        startActivityForResult(i, REQUEST_GRID);
-*/
+
                         deleteAdapter = new DeleteLapseAdapter(LapseGridActivity.this, null, mCurrentList);
                         deleteAdapter.setAdapterView(the_grid);
 

@@ -151,13 +151,15 @@ public class FullscreenCamera extends ActionBarActivity {
     @Override
     @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
-
+Log.v("tracker", "fullscreen on create");
         super.onCreate(savedInstanceState);
-
+        Log.v("tracker", "2");
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+        Log.v("tracker", "2a");
         setContentView(R.layout.activity_fullscreen_camera);
+        Log.v("tracker", "2b");
         mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
-
+        Log.v("tracker", "3");
         mView.findViewById(R.id.lapse_camera_surfaceView);
         mSurfaceView = (CameraSurfaceView) mView.findViewById(R.id.lapse_camera_surfaceView);
         mSurfaceView.mCamera = null;
@@ -165,7 +167,7 @@ public class FullscreenCamera extends ActionBarActivity {
         mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
         mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
         mView.findViewById(R.id.switch_overlay).setVisibility(View.INVISIBLE);
-
+        Log.v("tracker", "2");
         ImageButton switchOverlayButton = (ImageButton) mView.findViewById(R.id.switch_overlay);
         switchOverlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -329,7 +331,7 @@ public class FullscreenCamera extends ActionBarActivity {
             }
         });
 
-
+        Log.v("tracker", "3");
     }
 
 
