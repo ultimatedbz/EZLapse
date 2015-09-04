@@ -23,8 +23,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     private Button create_lapse_button;
     public ArrayList<Lapse> mLapseGallery;
     public ArrayList<Lapse> mCurrentList;
-    private GridView the_grid;
+    private ListView the_grid;
     private boolean results = false;
     private DeleteLapseAdapter deleteAdapter;
 
@@ -310,7 +310,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
     private void updateView(){
         if(mCurrentList.size() > 0) { // filtered lapses or all lapses
             setContentView(R.layout.activity_there_are_lapses_grid);
-            the_grid = (GridView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
+            the_grid = (ListView) findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.main_grid);
             Collections.sort(mCurrentList, new CustomComparator());
             if(the_grid.getAdapter() != null) {
                 the_grid.invalidateViews();
