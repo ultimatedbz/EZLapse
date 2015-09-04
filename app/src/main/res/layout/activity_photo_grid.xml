@@ -9,4 +9,5 @@
     android:verticalSpacing="1dp"
     android:horizontalSpacing="1dp"
     tools:context=".LapseGridActivity">
+
 </GridView>

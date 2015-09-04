@@ -123,12 +123,27 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
 
             }
 
-            Bitmap myBitmap = get_from_file(getItem(position).getFilePath(), 175, 175);
+
+            Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
 
             final int p = position;
+            picture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                /**
+                * Starts an activity that lets users slide between pictures
+                * */
+                 Intent i = new Intent(PhotoGridActivity.this, ViewPagerFragmentActivity.class);
+                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_PHOTO_POSITION,p);
+                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_ID, mLapseId);
+
+                startActivityForResult(i, REQUEST_DISPLAY);
+                 }
+            });
 
            return convertView;
         }
@@ -241,7 +256,7 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
 
             }
 
-            Bitmap myBitmap = get_from_file(getItem(position).getFilePath(), 175, 175);
+            Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);

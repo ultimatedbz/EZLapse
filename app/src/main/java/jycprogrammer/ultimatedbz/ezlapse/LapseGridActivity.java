@@ -287,12 +287,12 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             File imgFile = new  File(getItem(position).getLatest());
 
             if(imgFile.exists()){
-                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
                 findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap);
-                TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
-                text.setText(getItem(position).getTitle());
+                //TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
+                //text.setText(getItem(position).getTitle());
 
             }
             return convertView;
@@ -430,7 +430,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             /* Displays latest picture*/
             File imgFile = new  File(getItem(position).getLatest());
             if(imgFile.exists()){
-                Bitmap myBitmap = get_from_file(imgFile.getAbsolutePath(), 175,175);
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
                         findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
                 picture.setImageBitmap(myBitmap); //might be too big

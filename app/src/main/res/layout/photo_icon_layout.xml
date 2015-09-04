@@ -10,6 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:src="@drawable/doggy_butt"
-        android:layout_gravity="center" >
+        android:layout_gravity="center"
+        android:scaleType="centerCrop">
     </jycprogrammer.ultimatedbz.ezlapse.SquareGridItem>
 </LinearLayout>
