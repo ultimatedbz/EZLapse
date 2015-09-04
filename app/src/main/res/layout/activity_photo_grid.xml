@@ -3,11 +3,10 @@
 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/photo_grid"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:numColumns="auto_fit"
-    android:gravity="center"
-    android:columnWidth="120dp"
-    android:stretchMode="spacingWidthUniform"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:numColumns="4"
+    android:verticalSpacing="1dp"
+    android:horizontalSpacing="1dp"
     tools:context=".LapseGridActivity">
 </GridView>

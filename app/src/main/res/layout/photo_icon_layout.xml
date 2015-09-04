@@ -5,11 +5,11 @@
     android:padding="2dp"
     android:orientation="vertical" >
 
-    <ImageView
+    <jycprogrammer.ultimatedbz.ezlapse.SquareGridItem
         android:id="@+id/grid_item_image"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:src="@drawable/doggy_butt"
         android:layout_gravity="center" >
-    </ImageView>
+    </jycprogrammer.ultimatedbz.ezlapse.SquareGridItem>
 </LinearLayout>
