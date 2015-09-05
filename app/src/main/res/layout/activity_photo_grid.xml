@@ -8,6 +8,7 @@
     android:numColumns="4"
     android:verticalSpacing="1dp"
     android:horizontalSpacing="1dp"
-    tools:context=".LapseGridActivity">
+    tools:context=".LapseGridActivity"
+    android:background="@color/material_grey_600">
 
 </GridView>

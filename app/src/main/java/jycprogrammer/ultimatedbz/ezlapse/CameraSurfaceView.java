@@ -15,19 +15,27 @@ import java.util.List;
  * Created by jeffreychen on 6/27/15.
  */
 
+//TODO TAP TO FOCUS:
+// https://gist.github.com/mjurkus/21f7b9aa9b27a7661184
+//http://stackoverflow.com/questions/18460647/android-setfocusarea-and-auto-focus
+
+
 /**
  * A simple wrapper around a Camera and a SurfaceView that renders a centered preview of the Camera
  * to the surface. We need to center the SurfaceView because not all devices have cameras that
  * support preview sizes at the same aspect ratio as the device's display.
  */
-public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Callback{
+public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Callback{//, Camera.AutoFocusCallback{
     private final String TAG = "tracker";
     Camera.Size mPreviewSize;
     List<Camera.Size> mSupportedPreviewSizes;
     public Camera mCamera;
     private SurfaceHolder mHolder;
-
-
+/*
+    private int focusAreaSize;
+    private boolean previewRunning, cameraReleased, focusAreaSupported, meteringAreaSupported;
+    private Matrix matrix;
+*/
     public CameraSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         // Install a SurfaceHolder.Callback so we get notified when the
@@ -52,8 +60,16 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         mCamera = camera;
         if (mCamera != null) {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-            //for(Camera.Size str: mSupportedPreviewSizes)
-            //    Log.v(TAG, str.width + "/" + str.height);
+            /*
+            for(Camera.Size str: mSupportedPreviewSizes)
+                Log.v(TAG, str.width + "/" + str.height);
+
+            if(mPreviewSize != null) {
+                Log.v("tracker", "before " + mPreviewSize.width + " " + mPreviewSize.height);
+                onMeasure(99999, 99999);
+                Log.v("tracker", "after " + mPreviewSize.width + " " + mPreviewSize.height);
+            }
+            */
         }
     }
 
@@ -63,10 +79,10 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
 
-        Log.v("tracker", "onMeasure: bad");
+        Log.v("tracker", "onMeasure: " + widthMeasureSpec + " " + heightMeasureSpec);
         final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-
+        //Log.v("tracker", width + " " + height);
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
         }
@@ -118,6 +134,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
     /* SurfaceHolder Callback Stuff */
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.v("tracker", "surfacecreated");
         try {
             if (mCamera != null) {
                 mCamera.setPreviewDisplay(holder);
@@ -129,7 +146,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.v("tracker", "surface changed"+ format + " " + width + " " + height);
+        Log.v("tracker", "surface changed "+ format + " " + width + " " + height);
         if (mCamera == null)
             return;
 
@@ -159,7 +176,8 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         else
             p.set("rotation", 90);
 
-        Log.v("tracker", mPreviewSize.width + " " + mPreviewSize.height);
+
+
         p.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
         p.setPictureSize(mPreviewSize.width, mPreviewSize.height);
         mCamera.setParameters(p);
@@ -188,8 +206,108 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
             FullscreenCamera.inPreview = false;
         }
     }
+/*
+    /**
+     * On each tap event we will calculate focus area and metering area.
+     * <p>
+     * Metering area is slightly larger as it should contain more info for exposure calculation.
+     * As it is very easy to over/under expose
+     *
+    protected void focusOnTouch(MotionEvent event) {
+        if (mCamera != null) {
+            //cancel previous actions
+            mCamera.cancelAutoFocus();
+            Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+            Rect meteringRect = calculateTapArea(event.getX(), event.getY(), 1.5f);
 
+            Camera.Parameters parameters = null;
+            try {
+                parameters = mCamera.getParameters();
+            } catch (Exception e) {
+                Log.e("tracker",""+e);
+            }
 
+            // check if parameters are set (handle RuntimeException: getParameters failed (empty parameters))
+            if (parameters != null) {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                ArrayList<Camera.Area> a = new ArrayList<>();
+                a.add( new Camera.Area(focusRect, 1000));
+                parameters.setFocusAreas(a);
+
+                if (meteringAreaSupported) {
+                    ArrayList<Camera.Area> b = new ArrayList<>();
+                    b.add( new Camera.Area(meteringRect, 1000));
+                    parameters.setFocusAreas(b);
+                    parameters.setMeteringAreas(b);
+                }
+
+                try {
+                    mCamera.setParameters(parameters);
+                    mCamera.autoFocus(this);
+                } catch (Exception e) {
+                    Log.e("tracker",""+e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Convert touch position x:y to {@link Camera.Area} position -1000:-1000 to 1000:1000.
+     * <p>
+     * Rotate, scale and translate touch rectangle using matrix configured in
+     * {@link SurfaceHolder.Callback#surfaceChanged(android.view.SurfaceHolder, int, int, int)}
+     *
+    private Rect calculateTapArea(float x, float y, float coefficient) {
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
+
+        int left = clamp((int) x - areaSize / 2, 0, this.getWidth() - areaSize);
+        int top = clamp((int) y - areaSize / 2, 0, this.getHeight() - areaSize);
+
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+        matrix.mapRect(rectF);
+
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
+    }
+
+    public void resumeContinuousAutofocus() {
+        if (mCamera != null && focusAreaSupported) {
+            mCamera.cancelAutoFocus();
+
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setFocusAreas(null);
+
+            List<String> supportedFocusModes = parameters.getSupportedFocusModes();
+
+            String focusMode = null;
+            if (supportedFocusModes.contains(parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                focusMode = parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
+            } else if (supportedFocusModes.contains(parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                focusMode = parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
+            }
+
+            if (focusMode != null) {
+                parameters.setFocusMode(focusMode);
+                mCamera.setParameters(parameters);
+            }
+        }
+    }
+
+    private int clamp(int x, int min, int max) {
+        if (x > max) {
+            return max;
+        }
+        if (x < min) {
+            return min;
+        }
+        return x;
+    }
+
+    @Override
+    public void onAutoFocus(boolean focused, Camera camera) {
+
+    }
+
+    */
 }
 
 

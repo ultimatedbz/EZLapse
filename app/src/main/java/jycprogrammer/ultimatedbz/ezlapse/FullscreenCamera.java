@@ -33,7 +33,18 @@ import java.util.UUID;
 public class FullscreenCamera extends ActionBarActivity {
 
     /* Member Variables */
-    /*Fix stretch*/
+    /* The way the camera works is that we first set mSurfaceView's camera in onResume.
+    *  mSurfaceView then automatically calls onMeasure which sets the mPreviewSize. That is why
+    *  inPreview is first set to true. We don't need tp call surfacechanged() because it does that
+    *  for us, and if we do call it, the app will crash because mPreviewSize hasn't been set yet.
+    *
+    *  When we change cameras, we have to get it to set mPreviewSize correctly. This is done
+    *  by ...manually calling onMeasure when changeCamera button is pressed. lol.
+    *
+    * We also need to manually call surfacechanged() in onResume() because on resume, we have to
+    * restart the camera. we don't need to call onmeasure though because the camera is the same
+    * so should be using the same parameters that were already set to be correct earlier on.
+    * */
 
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
@@ -42,8 +53,10 @@ public class FullscreenCamera extends ActionBarActivity {
 
 
     private CameraSurfaceView mSurfaceView;
-    public static boolean inPreview = true; //janky but it's for first camera to not go in preview mode
-    public static int currentCameraId = -5;
+    //janky but it's for first camera to not go in preview mode. This is so that onmeasure can be called
+    // the surface view automatically calls onMeasure twice -> surfacechanged()
+    public static boolean inPreview = true;
+    public static int currentCameraId = 0;
     View mView;
     private boolean firstPic = true;
     private boolean pictureTaken = false;
@@ -305,7 +318,7 @@ Log.v("tracker", "fullscreen on create");
                 }
                 /* if you don't release the current camera before switching, you app will crash */
                 mSurfaceView.mCamera.release();
-
+                Log.v("tracker","camera change");
                 //swap the id of the camera to be used
                 if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
                     currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
@@ -313,6 +326,10 @@ Log.v("tracker", "fullscreen on create");
                     currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
                 mSurfaceView.setCamera(Camera.open(currentCameraId));
+                //Log.v("tracker", "camera just set");
+                //Log.v("tracker", "before " + mSurfaceView.mPreviewSize.width + " " + mSurfaceView.mPreviewSize.height);
+                mSurfaceView.onMeasure(1073742424, 1073742800);
+                //Log.v("tracker", "after " + mSurfaceView.mPreviewSize.width + " " + mSurfaceView.mPreviewSize.height);
                 mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);
             }
         });
@@ -327,7 +344,7 @@ Log.v("tracker", "fullscreen on create");
             }
         });
 
-        Log.v("tracker", "3");
+        //Log.v("tracker", "3");
     }
 
 
@@ -355,7 +372,7 @@ Log.v("tracker", "fullscreen on create");
         if (mSurfaceView.mCamera == null) {
             Log.v("tracker", "resume");
             /* If left during confirm/cancel phase */
-            mSurfaceView.setCamera(Camera.open(0));
+            mSurfaceView.setCamera(Camera.open(currentCameraId));
             if(!inPreview) {
                 Log.v("tracker", "start prev");
                 mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);

@@ -280,6 +280,8 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
             if(convertView == null) {
                 convertView = LapseGridActivity.this.getLayoutInflater()
                 .inflate(jycprogrammer.ultimatedbz.ezlapse.R.layout.delete_lapse_icon_layout, parent, false);
+                TextView text = (TextView) convertView.findViewById(R.id.grid_item_desc);
+                text.setText(getItem(position).getTitle());
                 //inflate(R.layout.delete_lapse_icon_layout, parent, false);
             }
 

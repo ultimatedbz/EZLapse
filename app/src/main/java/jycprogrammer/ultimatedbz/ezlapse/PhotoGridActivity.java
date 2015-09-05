@@ -129,21 +129,7 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
                     findViewById(R.id.grid_item_image);
             picture.setImageBitmap(myBitmap);
 
-            final int p = position;
-            picture.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
 
-                /**
-                * Starts an activity that lets users slide between pictures
-                * */
-                 Intent i = new Intent(PhotoGridActivity.this, ViewPagerFragmentActivity.class);
-                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_PHOTO_POSITION,p);
-                i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_ID, mLapseId);
-
-                startActivityForResult(i, REQUEST_DISPLAY);
-                 }
-            });
 
            return convertView;
         }
@@ -302,6 +288,20 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
                     deleteAdapter.setOnItemClickListener(PhotoGridActivity.this);
                     mGrid.performItemClick(view, position, id);
                     return true;
+                }
+            });
+
+            mGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    /**
+                     * Starts an activity that lets users slide between pictures
+                     * */
+                    Intent i = new Intent(PhotoGridActivity.this, ViewPagerFragmentActivity.class);
+                    i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_PHOTO_POSITION,position);
+                    i.putExtra(ViewPagerFragmentActivity.EXTRA_LAPSE_ID, mLapseId);
+
+                    startActivityForResult(i, REQUEST_DISPLAY);
                 }
             });
         }
