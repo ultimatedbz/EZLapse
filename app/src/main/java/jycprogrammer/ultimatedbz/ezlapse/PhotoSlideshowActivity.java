@@ -2,7 +2,7 @@ package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -64,7 +64,12 @@ public class PhotoSlideshowActivity extends ActionBarActivity {
         anim = new AnimationDrawable();
         anim.setOneShot(false);
         for (Photo p : mPhotoGallery) {
-            anim.addFrame(Drawable.createFromPath(p.getFilePath()), 250);
+            int height = getResources().getDisplayMetrics().heightPixels /4;
+            int width = getResources().getDisplayMetrics().heightPixels /4;
+
+            //anim.addFrame(Drawable.createFromPath(p.getFilePath()), 250);
+            anim.addFrame(new BitmapDrawable(getResources(),LapseGridActivity.
+                    decodeSampledBitmapFromResource(p.getFilePath(),width, height)), 250);
         }
 
         image = (ImageView) findViewById(R.id.imageView1);
@@ -133,5 +138,12 @@ public class PhotoSlideshowActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+
+        handler.removeCallbacks(runnable);
+        super.onBackPressed();
     }
 }

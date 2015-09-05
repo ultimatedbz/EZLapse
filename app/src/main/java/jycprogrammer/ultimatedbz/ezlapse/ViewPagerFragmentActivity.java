@@ -1,8 +1,6 @@
 package jycprogrammer.ultimatedbz.ezlapse;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
@@ -27,6 +25,7 @@ public class ViewPagerFragmentActivity extends FragmentActivity {
     private ArrayList<Photo> mPhotoGallery;
     /** maintains the pager adapter*/
     private ImagePagerAdapter mPagerAdapter;
+
     /* (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
      */
@@ -69,17 +68,31 @@ public class ViewPagerFragmentActivity extends FragmentActivity {
         public Object instantiateItem(ViewGroup container, int position) {
             Context context = ViewPagerFragmentActivity.this;
             ImageView imageView = new ImageView(context);
-            int padding = context.getResources().getDimensionPixelSize(
+            /*int padding = context.getResources().getDimensionPixelSize(
                     R.dimen.padding_medium);
             imageView.setPadding(padding, padding, padding, padding);
+            */
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(mPhotoGallery.get(position).getFilePath(),bmOptions);
+            //BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            //Bitmap bitmap = BitmapFactory.decodeFile(mPhotoGallery.get(position).getFilePath(),bmOptions);
           //  bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
-            imageView.setImageBitmap(bitmap);
+            //imageView.setImageBitmap(bitmap);
+            int height = getResources().getDisplayMetrics().heightPixels;
+            int width = getResources().getDisplayMetrics().heightPixels;
+            imageView.setImageBitmap(LapseGridActivity.
+                    decodeSampledBitmapFromResource(mPhotoGallery.get(position)
+                    .getFilePath(),width, height));
             //imageView.setImageResource(mPhotoGallery.get(position));
             ((ViewPager) container).addView(imageView, 0);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+
             return imageView;
         }
 

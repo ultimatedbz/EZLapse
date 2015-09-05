@@ -41,10 +41,13 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
     private DeletePhotoAdapter deleteAdapter;
     private static final int REQUEST_DISPLAY = 0;
 
+    private float scale = 0; // dp to pixel conversion
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        scale = getResources().getDisplayMetrics().density;
         if(getIntent().getExtras()!=null &&
                 getIntent().getExtras().containsKey(EXTRA_LAPSE_ID)){
 
@@ -124,11 +127,11 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
             }
 
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
+            //Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
-            picture.setImageBitmap(myBitmap);
-
+            //picture.setImageBitmap(myBitmap);
+            picture.setImageBitmap(LapseGridActivity.decodeSampledBitmapFromResource(getItem(position).getFilePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
 
 
            return convertView;
@@ -242,11 +245,13 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
 
             }
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
+            //Bitmap myBitmap = BitmapFactory.decodeFile(getItem(position).getFilePath());
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
-            picture.setImageBitmap(myBitmap);
-
+            //picture.setImageBitmap(myBitmap);
+            picture.setImageBitmap(LapseGridActivity.
+                    decodeSampledBitmapFromResource(getItem(position)
+                            .getFilePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
             return convertView;
         }
 
