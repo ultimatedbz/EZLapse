@@ -92,7 +92,7 @@ public class ViewPagerFragmentActivity extends FragmentActivity {
                     finish();
                 }
             });
-
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             return imageView;
         }
 
