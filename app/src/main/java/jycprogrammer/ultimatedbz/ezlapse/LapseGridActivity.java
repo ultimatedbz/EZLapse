@@ -209,6 +209,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         public DeleteLapseAdapter(Context c, Bundle savedInstanceState, ArrayList<Lapse> items) {
             super(savedInstanceState);
             this.lapses = items;
+            setTitle("Delete");
             mDialogBuilder =  new AlertDialog.Builder(c)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Delete")
@@ -328,11 +329,22 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 the_grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
+                        Log.v("tracker","switching to delete");
                         deleteAdapter = new DeleteLapseAdapter(LapseGridActivity.this, null, mCurrentList);
                         deleteAdapter.setAdapterView(the_grid);
 
-                        deleteAdapter.setOnItemClickListener(LapseGridActivity.this);
+                        //deleteAdapter.setOnItemClickListener(LapseGridActivity.this);
+
+                        /*
+                        the_grid.setAdapter(deleteAdapter);
+
+                        deleteAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Log.v("tracker", "delete view on item click");
+                                }
+                        });
+                        */
                         the_grid.performItemClick(view, position, id);
                         return true;
                     }
@@ -345,7 +357,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         i.putExtra(FullscreenCamera.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_PHOTO);
                         */
-
+                        Log.v("tracker", "grid item short click");
                         Intent i = new Intent(LapseGridActivity.this, PhotoGridActivity.class);
                         i.putExtra(PhotoGridActivity.EXTRA_LAPSE_ID, mCurrentList.get(position).getId());
                         startActivityForResult(i, REQUEST_GRID);
@@ -474,7 +486,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
-        Log.v("tracker", height + " " + width + " " + reqWidth + " " + reqHeight);
+        //Log.v("tracker", height + " " + width + " " + reqWidth + " " + reqHeight);
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {

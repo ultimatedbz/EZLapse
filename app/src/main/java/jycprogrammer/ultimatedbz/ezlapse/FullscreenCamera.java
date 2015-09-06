@@ -328,7 +328,8 @@ Log.v("tracker", "fullscreen on create");
                 mSurfaceView.setCamera(Camera.open(currentCameraId));
                 //Log.v("tracker", "camera just set");
                 //Log.v("tracker", "before " + mSurfaceView.mPreviewSize.width + " " + mSurfaceView.mPreviewSize.height);
-                mSurfaceView.onMeasure(1073742424, 1073742800);
+
+                mSurfaceView.myMeasure(1073742424, 1073742800);
                 //Log.v("tracker", "after " + mSurfaceView.mPreviewSize.width + " " + mSurfaceView.mPreviewSize.height);
                 mSurfaceView.surfaceChanged(mSurfaceView.getHolder(),4,0,0);
             }

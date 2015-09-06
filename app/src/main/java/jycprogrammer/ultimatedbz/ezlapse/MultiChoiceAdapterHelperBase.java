@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -59,9 +60,10 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
     public void setAdapterView(AdapterView<? super BaseAdapter> adapterView) {
         this.adapterView = adapterView;
         checkActivity();
+        adapterView.setAdapter(owner);
         adapterView.setOnItemLongClickListener(this);
         adapterView.setOnItemClickListener(this);
-        adapterView.setAdapter(owner);
+
         parseAttrs();
 
     //    if (!checkedItems.isEmpty()) {
@@ -100,6 +102,7 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
     }
 
     public void checkItem(long handle) {
+        Log.v("tracker","checkItem");
         boolean wasSelected = isChecked(handle);
         if (wasSelected) {
             return;
@@ -113,6 +116,7 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
     }
 
     public void uncheckItem(long handle) {
+        Log.v("tracker","uncheckItem");
         boolean wasSelected = isChecked(handle);
         if (!wasSelected) {
             return;
@@ -192,6 +196,7 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Log.v("tracker", "item long click");
         MultiChoiceAdapter adapter = (MultiChoiceAdapter) owner;
         if (!adapter.isItemCheckable(position)) {
             return false;
@@ -228,6 +233,7 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Log.v("tracker", "item short click");
         if (isActionModeStarted()) {
             switch (itemClickInActionModePolicy) {
                 case SELECT:
