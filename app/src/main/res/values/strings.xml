@@ -24,9 +24,9 @@
                                 Since then they\'ve ironed out the kinks and added new features to make
                                 the app you\'re using. If you have any suggestions or bugs to report,
                                 please send an email to jycprogrammer@gmail.com</string>
-    <string name="help_message">This is the Lapse Grid where you will see all your lapses. Tap each
-                    lapse to add another photo to it. Long press to view all the photos in the respective
-                    lapse.</string>
+    <string name="help_message">This is the Lapse Grid where you will see all your lapses. Tap the
+                    + button to make a new lapse. Tap each lapse to look through and add pictures.
+                    Long press to delete the lapse.</string>
 
 
     <string name="menu_settings">Settings</string>

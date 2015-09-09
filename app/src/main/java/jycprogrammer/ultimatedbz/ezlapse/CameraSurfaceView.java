@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,8 +33,10 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
     private final String TAG = "tracker";
     Camera.Size mPreviewSize;
     List<Camera.Size> mSupportedPreviewSizes;
+    List<Camera.Size> mSupportedPictureSizes;
     public Camera mCamera;
     private SurfaceHolder mHolder;
+    int suggestedMinWidth, suggestedMinHeight;
 
     private int focusAreaSize;
     private boolean previewRunning, cameraReleased, focusAreaSupported, meteringAreaSupported;
@@ -113,10 +116,17 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         mCamera = camera;
         if (mCamera != null) {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-            /*
+
+            Log.v(TAG, "preview");
             for(Camera.Size str: mSupportedPreviewSizes)
                 Log.v(TAG, str.width + "/" + str.height);
 
+            mSupportedPictureSizes = mCamera.getParameters().getSupportedPictureSizes();
+
+            Log.v(TAG, "picture: ");
+            for(Camera.Size str: mSupportedPictureSizes)
+                Log.v(TAG, str.width + "/" + str.height);
+/*
             if(mPreviewSize != null) {
                 Log.v("tracker", "before " + mPreviewSize.width + " " + mPreviewSize.height);
                 onMeasure(99999, 99999);
@@ -133,13 +143,17 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         // of stretching it.
 
         Log.v("tracker", "onMeasure: " + widthMeasureSpec + " " + heightMeasureSpec);
+
         final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        //Log.v("tracker", width + " " + height);
+        suggestedMinHeight = height;
+        suggestedMinWidth = width;
+        Log.v(TAG, "width: " + width + " height: " + height);
         if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+            //mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, height, width);
         }
-
+        Log.v(TAG, mPreviewSize.width + " " + mPreviewSize.height);
         float ratio;
         if(mPreviewSize.height >= mPreviewSize.width)
             ratio = (float) mPreviewSize.height / (float) mPreviewSize.width;
@@ -155,12 +169,13 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
 
-        Log.v("tracker", "onMeasure: " + widthMeasureSpec + " " + heightMeasureSpec);
-        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        //Log.v("tracker", width + " " + height);
+        Log.v("tracker", "myMeasure: " + widthMeasureSpec + " " + heightMeasureSpec);
+        final int width = suggestedMinWidth;
+        final int height = suggestedMinHeight;
+        Log.v(TAG, "width: " + width + " height: " + height);
         if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+            //mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height); // 1920/1080
+            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, height, width); //1080 1920
         }
 
         float ratio;
@@ -169,6 +184,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         else
             ratio = (float) mPreviewSize.width / (float) mPreviewSize.height;
 
+        Log.v(TAG, mPreviewSize.width + " " + mPreviewSize.height);
         // One of these methods should be used, second method squishes preview slightly
         setMeasuredDimension(width, (int) (width * ratio));
     }
@@ -176,12 +192,12 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
         //double targetRatio = (double) w / h;
-        double targetRatio = (double) h / w;
+        double targetRatio = (double) h / w; //1080/1920
         if (sizes == null)
             return null;
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
-        int targetHeight = h;
+        int targetHeight = h; //1080
         // Try to find an size match aspect ratio and size
         for (Camera.Size size : sizes) {
             //double ratio = (double) size.width / size.height;
@@ -233,10 +249,11 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         int cameraRotationOffset = camInfo.orientation;
 
         /* Need to find better way of fixing camera orientation */
-        if (cameraRotationOffset == 270 || cameraRotationOffset == 0)  // 0 for samsung
-            mCamera.setDisplayOrientation(90);
+        if (cameraRotationOffset == 270)
+            mCamera.setDisplayOrientation(90); // rotates clockwise 90 degrees
 
         Camera.Parameters p = mCamera.getParameters();
+/*  okay */
         p.set("jpeg-quality", 100);
         // checks focus mode with getSupportedFocusModes() to see if the camera supports focusmodecontinuouspicture
         List<String> l = p.getSupportedFocusModes();
@@ -245,9 +262,19 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
             p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         Log.v("tracker", "camera rotation: "+cameraRotationOffset);
         p.setPictureFormat(PixelFormat.JPEG);
-        
-        if (cameraRotationOffset == 270 && FullscreenCamera.currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+/* okay */
+
+
+        if (cameraRotationOffset == 270 && FullscreenCamera.currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             p.set("rotation", 270);
+            /* default is left of screen -> top of picture, right of screen -> bottom of picture .
+                changing to 90 rotates picture 90 degrees counter clockwise so it becomes upside down.
+                changing to 270 rotates 270 degrees cc, so it becomes right side up.
+
+                HOWEVER, this is only for HTC. For samsung, front camera starts off as  left top, right bottom, but p.set("rotation", x) doesn't do anything
+                I will need to have a samsung flag, and if it is samsung, rotate the front regardless because exif of front is always 0*/
+            Log.v(TAG,"ran rotation 270");
+        }
         else
             p.set("rotation", 90);
 
@@ -255,6 +282,13 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
         p.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
         p.setPictureSize(mPreviewSize.width, mPreviewSize.height);
+        Context context = getContext();
+        CharSequence text = "width: " + mPreviewSize.width + " height: " + mPreviewSize.height;
+        int duration = Toast.LENGTH_LONG;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
         mCamera.setParameters(p);
 
               /*In the future look at this for rotation
@@ -356,6 +390,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
             parameters.setFocusAreas(null);
 
             List<String> supportedFocusModes = parameters.getSupportedFocusModes();
+
 
             String focusMode = null;
             if (supportedFocusModes.contains(parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {

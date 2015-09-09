@@ -68,7 +68,7 @@ public abstract class MultiChoiceAdapterHelperBase implements OnItemLongClickLis
 
     //    if (!checkedItems.isEmpty()) {
             startActionMode();
-            setActionModeTitle("Delete");
+            setActionModeTitle("Delete (0 items selected)");
       //      onItemSelectedStateChanged();
        // }
     }

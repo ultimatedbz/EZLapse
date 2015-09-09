@@ -49,6 +49,7 @@ public class FullscreenCamera extends ActionBarActivity {
     private static final String TAG = "FullscreenCamera";
     public static final String EXTRA_PASS = "photo was passed";
     public static final String EXTRA_LAPSE_ID = "id of the lapse";
+    public static boolean samsung = false;
     private final String EZdirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/EZLapse/";
 
 
@@ -96,8 +97,9 @@ public class FullscreenCamera extends ActionBarActivity {
 
                 ExifInterface exif=new ExifInterface(filePath.toString());
                 Bitmap realImage = BitmapFactory.decodeByteArray(data , 0, data.length);
+                Log.v(TAG, "exif: " + exif.getAttribute(ExifInterface.TAG_ORIENTATION));
 
-                if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
+                if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6") || (samsung &&exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0") )){
                     realImage=rotate(realImage, 90);
                 }else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
                     realImage=rotate(realImage, 180);
@@ -166,6 +168,10 @@ public class FullscreenCamera extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 Log.v("tracker", "fullscreen on create");
         super.onCreate(savedInstanceState);
+
+        String strManufacturer = android.os.Build.MANUFACTURER;
+        if(strManufacturer.equals("samsung"))
+            samsung = true;
         currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         setContentView(R.layout.activity_fullscreen_camera);
         mView = this.getWindow().getDecorView().findViewById(android.R.id.content);
