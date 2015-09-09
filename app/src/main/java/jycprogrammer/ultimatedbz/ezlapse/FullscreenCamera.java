@@ -142,8 +142,13 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.change_camera).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.preview_image_view).setVisibility(View.VISIBLE);
+
+                int height = getResources().getDisplayMetrics().heightPixels /4;
+                int width = getResources().getDisplayMetrics().widthPixels /4;
                 ((ImageView) mView.findViewById(R.id.preview_image_view))
-                        .setImageBitmap(BitmapFactory.decodeFile(EZdirectory + "tmp/" + filename));
+                        .setImageBitmap(LapseGridActivity.
+                        decodeSampledBitmapFromResource(EZdirectory + "tmp/" + filename,width, height));
+
                 ((ImageView) mView.findViewById(R.id.preview_image_view))
                         .setScaleType(ImageView.ScaleType.FIT_XY);
                 mView.findViewById(R.id.lapse_camera_surfaceView).setVisibility(View.INVISIBLE);
@@ -248,7 +253,12 @@ Log.v("tracker", "fullscreen on create");
 
                                     pictureTaken = true;
                                     firstPic = false;
-                                    mOverlay.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+
+                                    int height = getResources().getDisplayMetrics().heightPixels /4;
+                                    int width = getResources().getDisplayMetrics().widthPixels /4;
+                                    mOverlay.setImageBitmap(LapseGridActivity.
+                                                    decodeSampledBitmapFromResource(to.getAbsolutePath(),width, height));
+
                                     mOverlay.setScaleType(ImageView.ScaleType.FIT_XY);
                                     mOverlay.setAlpha(.5f);
 
@@ -279,7 +289,10 @@ Log.v("tracker", "fullscreen on create");
                     mOverlay.setAlpha(.5f);
 
 
-                    mOverlay.setImageBitmap(BitmapFactory.decodeFile(to.getAbsolutePath()));
+                    int height = getResources().getDisplayMetrics().heightPixels /4;
+                    int width = getResources().getDisplayMetrics().widthPixels /4;
+                    mOverlay.setImageBitmap(LapseGridActivity.
+                            decodeSampledBitmapFromResource(to.getAbsolutePath(),width, height));
                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.confirm_take).setVisibility(View.INVISIBLE);
                     mView.findViewById(R.id.lapse_camera_takePictureButton).setVisibility(View.VISIBLE);
@@ -305,9 +318,11 @@ Log.v("tracker", "fullscreen on create");
                     .getLatest());
             if (imgFile.exists()) {
 
-                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                mOverlay.setImageBitmap(myBitmap);
+                int height = getResources().getDisplayMetrics().heightPixels /4;
+                int width = getResources().getDisplayMetrics().widthPixels /4;
+                mOverlay.setImageBitmap(LapseGridActivity.
+                        decodeSampledBitmapFromResource(imgFile.getAbsolutePath(),width, height));
                 mOverlay.setScaleType(ImageView.ScaleType.FIT_XY);
 
             }

@@ -65,7 +65,7 @@ public class PhotoSlideshowActivity extends ActionBarActivity {
         anim.setOneShot(false);
         for (Photo p : mPhotoGallery) {
             int height = getResources().getDisplayMetrics().heightPixels /4;
-            int width = getResources().getDisplayMetrics().heightPixels /4;
+            int width = getResources().getDisplayMetrics().widthPixels /4;
 
             //anim.addFrame(Drawable.createFromPath(p.getFilePath()), 250);
             anim.addFrame(new BitmapDrawable(getResources(),LapseGridActivity.

@@ -79,7 +79,7 @@ public class ViewPagerFragmentActivity extends FragmentActivity {
           //  bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
             //imageView.setImageBitmap(bitmap);
             int height = getResources().getDisplayMetrics().heightPixels;
-            int width = getResources().getDisplayMetrics().heightPixels;
+            int width = getResources().getDisplayMetrics().widthPixels;
             imageView.setImageBitmap(LapseGridActivity.
                     decodeSampledBitmapFromResource(mPhotoGallery.get(position)
                     .getFilePath(),width, height));
