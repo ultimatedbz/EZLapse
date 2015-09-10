@@ -32,6 +32,7 @@ import java.util.List;
 public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Callback/*, Camera.AutoFocusCallback*/{
     private final String TAG = "tracker";
     Camera.Size mPreviewSize;
+    Camera.Size mPictureSize;
     List<Camera.Size> mSupportedPreviewSizes;
     List<Camera.Size> mSupportedPictureSizes;
     public Camera mCamera;
@@ -152,6 +153,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         if (mSupportedPreviewSizes != null) {
             //mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, height, width);
+            mPictureSize = getOptimalPreviewSize(mSupportedPictureSizes, height, width);
         }
         Log.v(TAG, mPreviewSize.width + " " + mPreviewSize.height);
         float ratio;
@@ -176,6 +178,7 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
         if (mSupportedPreviewSizes != null) {
             //mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height); // 1920/1080
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, height, width); //1080 1920
+            mPictureSize = getOptimalPreviewSize(mSupportedPictureSizes, height, width);
         }
 
         float ratio;
@@ -281,13 +284,13 @@ public class CameraSurfaceView  extends SurfaceView implements SurfaceHolder.Cal
 
 
         p.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-        p.setPictureSize(mPreviewSize.width, mPreviewSize.height);
+        p.setPictureSize(mPictureSize.width, mPictureSize.height);
         Context context = getContext();
-        CharSequence text = "width: " + mPreviewSize.width + " height: " + mPreviewSize.height;
+        CharSequence text = "width: " + mPictureSize.width + " height: " + mPictureSize.height;
         int duration = Toast.LENGTH_LONG;
 
         Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        //toast.show();
 
         mCamera.setParameters(p);
 
