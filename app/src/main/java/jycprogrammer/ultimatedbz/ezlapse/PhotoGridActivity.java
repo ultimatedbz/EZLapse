@@ -254,7 +254,7 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
             picture.setImageBitmap(LapseGridActivity.
                     decodeSampledBitmapFromResource(getItem(position)
                             .getFilePath(),width,width)); // right now no change from just doing full picture
-            return picture;
+            return convertView;
         }
 
     }
