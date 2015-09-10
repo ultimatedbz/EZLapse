@@ -131,7 +131,8 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
             //picture.setImageBitmap(myBitmap);
-            picture.setImageBitmap(LapseGridActivity.decodeSampledBitmapFromResource(getItem(position).getFilePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
+            int width = getResources().getDisplayMetrics().widthPixels /4;
+            picture.setImageBitmap(LapseGridActivity.decodeSampledBitmapFromResource(getItem(position).getFilePath(),width,width));
 
 
            return convertView;
@@ -249,10 +250,11 @@ public class PhotoGridActivity extends ActionBarActivity implements AdapterView.
             ImageView picture = (ImageView) convertView.
                     findViewById(R.id.grid_item_image);
             //picture.setImageBitmap(myBitmap);
+            int width = getResources().getDisplayMetrics().widthPixels /4;
             picture.setImageBitmap(LapseGridActivity.
                     decodeSampledBitmapFromResource(getItem(position)
-                            .getFilePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
-            return convertView;
+                            .getFilePath(),width,width)); // right now no change from just doing full picture
+            return picture;
         }
 
     }

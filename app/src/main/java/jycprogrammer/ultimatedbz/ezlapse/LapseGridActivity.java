@@ -297,7 +297,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                 //Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 ImageView picture = (ImageView) convertView.
                 findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
-                picture.setImageBitmap(decodeSampledBitmapFromResource(imgFile.getAbsolutePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
+                picture.setImageBitmap(decodeSampledBitmapFromResource(imgFile.getAbsolutePath(),(int) (120 * scale + 0.5f), (int) (120 * scale + 0.5f)));
 
                 TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
@@ -450,7 +450,7 @@ public class LapseGridActivity extends ActionBarActivity implements AdapterView.
                         findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_image);
                 //picture.setImageBitmap(myBitmap); //might be too big
 
-                picture.setImageBitmap(decodeSampledBitmapFromResource(imgFile.getAbsolutePath(),(int) (150 * scale + 0.5f), (int) (150 * scale + 0.5f)));
+                picture.setImageBitmap(decodeSampledBitmapFromResource(imgFile.getAbsolutePath(),(int) (120 * scale + 0.5f), (int) (120 * scale + 0.5f)));
                 TextView text = (TextView) convertView.findViewById(jycprogrammer.ultimatedbz.ezlapse.R.id.grid_item_desc);
                 text.setText(getItem(position).getTitle());
 

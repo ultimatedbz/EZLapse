@@ -143,8 +143,8 @@ public class FullscreenCamera extends ActionBarActivity {
                 mView.findViewById(R.id.change_camera).setVisibility(View.INVISIBLE);
                 mView.findViewById(R.id.preview_image_view).setVisibility(View.VISIBLE);
 
-                int height = getResources().getDisplayMetrics().heightPixels /4;
-                int width = getResources().getDisplayMetrics().widthPixels /4;
+                int height = getResources().getDisplayMetrics().heightPixels /8;
+                int width = getResources().getDisplayMetrics().widthPixels /8;
                 ((ImageView) mView.findViewById(R.id.preview_image_view))
                         .setImageBitmap(LapseGridActivity.
                         decodeSampledBitmapFromResource(EZdirectory + "tmp/" + filename,width, height));
@@ -254,8 +254,8 @@ Log.v("tracker", "fullscreen on create");
                                     pictureTaken = true;
                                     firstPic = false;
 
-                                    int height = getResources().getDisplayMetrics().heightPixels /4;
-                                    int width = getResources().getDisplayMetrics().widthPixels /4;
+                                    int height = getResources().getDisplayMetrics().heightPixels /8;
+                                    int width = getResources().getDisplayMetrics().widthPixels /8;
                                     mOverlay.setImageBitmap(LapseGridActivity.
                                                     decodeSampledBitmapFromResource(to.getAbsolutePath(),width, height));
 
@@ -289,8 +289,8 @@ Log.v("tracker", "fullscreen on create");
                     mOverlay.setAlpha(.5f);
 
 
-                    int height = getResources().getDisplayMetrics().heightPixels /4;
-                    int width = getResources().getDisplayMetrics().widthPixels /4;
+                    int height = getResources().getDisplayMetrics().heightPixels /8;
+                    int width = getResources().getDisplayMetrics().widthPixels /8;
                     mOverlay.setImageBitmap(LapseGridActivity.
                             decodeSampledBitmapFromResource(to.getAbsolutePath(),width, height));
                     mView.findViewById(R.id.cancel_take).setVisibility(View.INVISIBLE);
